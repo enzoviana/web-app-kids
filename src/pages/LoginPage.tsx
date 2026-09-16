@@ -13,11 +13,13 @@ import { AppBackground } from '@/components/AppBackground';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { migrationApi } from '@/services/api';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isMigrating, setIsMigrating] = useState(false);
   const navigate = useNavigate();
   const { login, isLoading, error } = useAuth();
 
@@ -49,6 +51,22 @@ export const LoginPage: React.FC = () => {
 
     setEmail(credentials[role].email);
     setPassword(credentials[role].password);
+  };
+
+  // Fonction pour appliquer les migrations (SuperAdmin uniquement)
+  const handleApplyMigrations = async () => {
+    try {
+      setIsMigrating(true);
+      const result = await migrationApi.applyMigrations();
+      toast.success('Migrations appliquées avec succès!');
+      console.log('Migration output:', result.output);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || error.message || 'Erreur lors des migrations';
+      toast.error(errorMessage);
+      console.error('Migration error:', error);
+    } finally {
+      setIsMigrating(false);
+    }
   };
 
   return (
@@ -222,6 +240,26 @@ export const LoginPage: React.FC = () => {
                 RSAI
               </button>
             </div>
+          </motion.div>
+
+          {/* Bouton Migration - DEV ONLY - À SUPPRIMER APRÈS */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="mt-4"
+          >
+            <Button
+              type="button"
+              onClick={handleApplyMigrations}
+              disabled={isMigrating}
+              className="w-full h-11 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white disabled:opacity-40"
+            >
+              {isMigrating ? 'Application des migrations...' : '🔧 Créer les tables DB (SuperAdmin)'}
+            </Button>
+            <p className="text-center text-[10px] text-red-600 dark:text-red-400 font-medium mt-2">
+              ⚠️ Bouton temporaire - Supprimer après migration
+            </p>
           </motion.div>
         </div>
 

@@ -910,4 +910,19 @@ export const apiUtils = {
   },
 };
 
+/**
+ * API de gestion des migrations (SuperAdmin uniquement)
+ */
+export const migrationApi = {
+  applyMigrations: async () => {
+    const response = await api.post('/admin/migrate');
+    return response.data;
+  },
+
+  getMigrationStatus: async () => {
+    const response = await api.get('/admin/migrate/status');
+    return response.data;
+  },
+};
+
 export default api;
