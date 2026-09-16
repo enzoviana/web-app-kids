@@ -242,25 +242,7 @@ export const LoginPage: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* Bouton Migration - DEV ONLY - À SUPPRIMER APRÈS */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="mt-4"
-          >
-            <Button
-              type="button"
-              onClick={handleApplyMigrations}
-              disabled={isMigrating}
-              className="w-full h-11 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white disabled:opacity-40"
-            >
-              {isMigrating ? 'Application des migrations...' : '🔧 Créer les tables DB (SuperAdmin)'}
-            </Button>
-            <p className="text-center text-[10px] text-red-600 dark:text-red-400 font-medium mt-2">
-              ⚠️ Bouton temporaire - Supprimer après migration
-            </p>
-          </motion.div>
+         
         </div>
 
         {/* Footer */}
