@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { abonnementApi, tarifApi } from '@/services/api';
 import { motion } from 'framer-motion';
+import { AppBackground } from '@/components/AppBackground';
 
 const DEFAULT_ETABLISSEMENT_ID = 'test-creche-001';
 
@@ -131,46 +132,49 @@ export const AbonnementPage: React.FC = () => {
   // État de chargement
   if (loading) {
     return (
-      <div className="p-8 min-h-screen bg-gradient-to-br from-slate-50 via-teal-50/20 to-indigo-50/20 dark:from-zinc-950 dark:via-zinc-900/50 dark:to-zinc-950 flex items-center justify-center">
-        <div className="text-center">
-          <IoReloadOutline className="h-12 w-12 text-teal-500 mx-auto mb-3 animate-spin" />
-          <p className="text-sm text-slate-600 dark:text-zinc-400">Chargement des abonnements...</p>
+      <AppBackground>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center space-y-4">
+            <IoReloadOutline className="h-12 w-12 text-lime-600 mx-auto animate-spin" />
+            <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">Chargement des abonnements...</p>
+          </div>
         </div>
-      </div>
+      </AppBackground>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="p-8 space-y-8 bg-gradient-to-br from-slate-50 via-teal-50/20 to-indigo-50/20 dark:from-zinc-950 dark:via-zinc-900/50 dark:to-zinc-950 min-h-screen text-slate-900 dark:text-zinc-100 font-sans antialiased"
-    >
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
 
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black tracking-tight">Facturation & Offres</h1>
-          <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1">
-            Gérez votre formule, votre moyen de paiement et vos factures
-          </p>
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800 pb-5">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight">Facturation & Offres</h1>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+              Gérez votre formule, votre moyen de paiement et vos factures
+            </p>
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => alert('Module de modification du moyen de paiement à venir')}
+            className="h-10 px-5 text-xs font-bold rounded-2xl border-slate-200 dark:border-zinc-800 cursor-pointer"
+          >
+            <IoReceiptOutline className="h-4 w-4 mr-2 text-slate-500" />
+            Modifier RIB / Carte
+          </Button>
         </div>
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => alert('Module de modification du moyen de paiement à venir')}
-          className="h-11 px-5 text-xs font-bold rounded-2xl border-slate-200 dark:border-zinc-800 cursor-pointer shadow-xs"
-        >
-          <IoReceiptOutline className="h-4 w-4 mr-2 text-slate-500" />
-          Modifier RIB / Carte
-        </Button>
-      </div>
 
       {/* Message d'erreur */}
       {error && (
-        <Card className="rounded-3xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20 shadow-md">
+        <Card className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20 shadow-md">
           <CardContent className="p-4 flex items-center gap-3">
             <IoAlertCircleOutline className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0" />
             <div>
@@ -183,7 +187,7 @@ export const AbonnementPage: React.FC = () => {
 
       {/* Vue Synthétique Plan Actuel */}
       {abonnement && (
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100 dark:border-zinc-800">
               <div className="flex items-center gap-4">
@@ -280,7 +284,7 @@ export const AbonnementPage: React.FC = () => {
             return (
               <Card
                 key={plan.id}
-                className={`rounded-3xl relative flex flex-col justify-between transition-all bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md hover:shadow-lg ${
+                className={`rounded-xl relative flex flex-col justify-between transition-all bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md hover:shadow-lg ${
                   isCurrent
                     ? 'border-slate-900 dark:border-zinc-100 border-2'
                     : 'border-slate-200/80 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700'
@@ -356,7 +360,7 @@ export const AbonnementPage: React.FC = () => {
       </div>
 
       {/* Historique de facturation */}
-      <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
+      <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
         <CardHeader className="px-6 py-4 border-b border-slate-100 dark:border-zinc-800">
           <CardTitle className="text-sm font-bold">Historique des reçus</CardTitle>
           <CardDescription className="text-xs mt-0.5">Téléchargez vos factures d'abonnement au format PDF</CardDescription>
@@ -388,6 +392,27 @@ export const AbonnementPage: React.FC = () => {
         </CardContent>
       </Card>
 
+      {/* Professional Footer */}
+      <footer className="mt-16 pt-8 border-t border-slate-200/80 dark:border-zinc-800">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+            <span className="font-bold text-lime-600 dark:text-lime-400">Kids'Med IA</span>
+            <span>•</span>
+            <span>© 2026 Tous droits réservés</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-zinc-400">
+            <a href="#" className="hover:text-lime-600 dark:hover:text-lime-400 transition-colors font-medium">
+              Centre d'aide
+            </a>
+            <span>•</span>
+            <a href="#" className="hover:text-lime-600 dark:hover:text-lime-400 transition-colors font-medium">
+              Documentation
+            </a>
+          </div>
+        </div>
+      </footer>
+
     </motion.div>
+    </AppBackground>
   );
 };

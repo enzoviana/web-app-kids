@@ -44,6 +44,7 @@ import { ValiderDocumentModal } from '@/components/modals/ValiderDocumentModal';
 import { RejeterDocumentModal } from '@/components/modals/RejeterDocumentModal';
 import { motion } from 'framer-motion';
 import { enfantApi, documentApi, documentObligatoireApi } from '@/services/api';
+import { AppBackground } from '@/components/AppBackground';
 
 const DEFAULT_ETABLISSEMENT_ID = 'test-creche-001';
 
@@ -63,6 +64,16 @@ const getActualStatus = (doc: Document | null): StatutDocument => {
 
 export const CompliancePage: React.FC = () => {
   const { user } = useAuth();
+
+  // Détection du rôle pour les couleurs
+  const isRSAI = user?.role === 'rsai' || user?.role === 'professionnel_rsai';
+  const isCreche = user?.role === 'creche' || user?.role === 'professionnel';
+
+  // Thème de couleur basé sur le rôle
+  const roleTheme = isRSAI
+    ? { primary: 'fuchsia', hex: '#FF007A', light: 'fuchsia-50', dark: 'fuchsia-950', border: 'fuchsia-200', text: 'fuchsia-600' }
+    : { primary: 'lime', hex: '#8BC34A', light: 'lime-50', dark: 'lime-950', border: 'lime-200', text: 'lime-600' };
+
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'warning' | 'missing'>('all');
   const [isDemanderModalOpen, setIsDemanderModalOpen] = useState(false);
@@ -250,191 +261,239 @@ export const CompliancePage: React.FC = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="p-16 text-center space-y-4 max-w-md mx-auto mt-20">
-        <IoReloadOutline className="h-12 w-12 text-teal-500 mx-auto animate-spin" />
-        <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">
-          Chargement de la conformité documentaire...
-        </p>
-        <p className="text-xs text-slate-500 dark:text-zinc-400">
-          Vérification des documents obligatoires
-        </p>
-      </div>
+      <AppBackground>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center space-y-4">
+            <IoReloadOutline
+              className={`h-12 w-12 ${isRSAI ? 'text-fuchsia-600' : 'text-lime-600'} mx-auto animate-spin`}
+            />
+            <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">
+              Chargement de la conformité documentaire...
+            </p>
+            <p className="text-xs text-slate-500 dark:text-zinc-400">
+              Vérification des documents obligatoires
+            </p>
+          </div>
+        </div>
+      </AppBackground>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <div className="p-16 text-center space-y-4 max-w-md mx-auto mt-20">
-        <IoAlertCircle className="h-12 w-12 text-rose-500 mx-auto" />
-        <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">
-          Erreur de chargement
-        </p>
-        <p className="text-xs text-slate-500 dark:text-zinc-400">{error}</p>
-        <Button onClick={loadData} className="mt-4">
-          <IoRefreshOutline className="h-4 w-4 mr-2" />
-          Réessayer
-        </Button>
-      </div>
+      <AppBackground>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center space-y-4 max-w-md">
+            <IoAlertCircle className="h-12 w-12 text-rose-500 mx-auto" />
+            <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">
+              Erreur de chargement
+            </p>
+            <p className="text-xs text-slate-500 dark:text-zinc-400">{error}</p>
+            <Button
+              onClick={loadData}
+              className={`mt-4 ${isRSAI ? 'bg-fuchsia-700 hover:bg-fuchsia-600' : 'bg-lime-700 hover:bg-lime-600'}`}
+            >
+              <IoRefreshOutline className="h-4 w-4 mr-2" />
+              Réessayer
+            </Button>
+          </div>
+        </div>
+      </AppBackground>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="p-4 sm:p-8 space-y-8 bg-gradient-to-br from-slate-50 via-teal-50/20 to-indigo-50/20 dark:from-zinc-950 dark:via-zinc-900/50 dark:to-zinc-950 min-h-screen text-slate-900 dark:text-zinc-100 font-sans antialiased"
-    >
-
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800 pb-5">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight">Conformité & Registre Documentaire</h1>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-800 shadow-xs">
-              <IoShieldCheckmarkOutline className="h-3.5 w-3.5" />
-              PMI Compliant
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
-            Contrôle d'audit réglementaire et suivi automatique des pièces obligatoires.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsUploadModalOpen(true)}
-            className="h-10 text-xs font-bold rounded-2xl border-slate-200 dark:border-zinc-700 hover:bg-teal-50 hover:text-teal-600 transition-all cursor-pointer shadow-xs"
-          >
-            <IoCloudUploadOutline className="h-4 w-4 mr-1.5" />
-            Téléverser un document
-          </Button>
-          <Button variant="outline" size="sm" className="h-10 text-xs font-bold rounded-2xl border-slate-200 dark:border-zinc-700 hover:bg-teal-50 hover:text-teal-600 transition-all cursor-pointer shadow-xs">
-            <IoDownloadOutline className="h-4 w-4 mr-1.5 text-slate-500" />
-            Rapport d'audit PDF
-          </Button>
-          <Button size="sm" className="h-10 text-xs font-bold rounded-2xl bg-teal-600 hover:bg-teal-700 text-white transition-all shadow-md cursor-pointer">
-            <IoMailOutline className="h-4 w-4 mr-1.5" />
-            Relancer tout ({stats.alerte + stats.manquant})
-          </Button>
-        </div>
-      </div>
-
-      {/* KPI Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500 dark:text-zinc-400">Score de conformité</span>
-              <span className="text-[10px] font-mono font-extrabold text-teal-600 bg-teal-50 dark:bg-teal-950/40 px-2 py-0.5 rounded-lg border border-teal-200/60 dark:border-teal-800">
-                +2.4% ce mois
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800 pb-5">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight">Conformité & Registre Documentaire</h1>
+              <span
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-${roleTheme.light} dark:bg-${roleTheme.dark}/50 text-${roleTheme.text} dark:text-${roleTheme.text} border border-${roleTheme.border} dark:border-${roleTheme.text}/20 shadow-xs`}
+              >
+                <IoShieldCheckmarkOutline className="h-3.5 w-3.5" />
+                PMI Compliant
               </span>
             </div>
-            <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-3xl font-black tracking-tight">{stats.rate}%</span>
-              <span className="text-xs text-slate-400 dark:text-zinc-500 font-semibold">({stats.valide}/{stats.total})</span>
-            </div>
-            <div className="mt-3 h-2 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden p-0.5">
-              <div
-                className="h-full bg-teal-600 rounded-full transition-all duration-500 shadow-xs"
-                style={{ width: `${stats.rate}%` }}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500 dark:text-zinc-400">Documents valides</span>
-              <IoCheckmarkCircle className="h-5 w-5 text-teal-500" />
-            </div>
-            <div className="mt-3">
-              <span className="text-3xl font-black tracking-tight text-teal-600 dark:text-teal-400">{stats.valide}</span>
-              <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-1 font-medium">Dossiers conformes et validés</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500 dark:text-zinc-400">Expirations imminentes</span>
-              <IoWarningOutline className="h-5 w-5 text-amber-500" />
-            </div>
-            <div className="mt-3">
-              <span className="text-3xl font-black tracking-tight text-amber-600 dark:text-amber-400">{stats.alerte}</span>
-              <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-1 font-medium">Expire sous 30 jours</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500 dark:text-zinc-400">Pièces manquantes</span>
-              <IoAlertCircle className="h-5 w-5 text-rose-500" />
-            </div>
-            <div className="mt-3">
-              <span className="text-3xl font-black tracking-tight text-rose-600 dark:text-rose-400">{stats.manquant}</span>
-              <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-1 font-medium">Action requise immédiatement</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Control Bar & Matrix Table */}
-      <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md overflow-hidden">
-        
-        {/* Filters */}
-        <div className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="relative w-full md:w-80">
-            <IoSearchOutline className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Filtrer par enfant..."
-              className="w-full pl-10 pr-4 py-2 text-xs font-medium bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 rounded-2xl focus:outline-none focus:border-teal-500 transition-all shadow-xs"
-            />
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+              Contrôle d'audit réglementaire et suivi automatique des pièces obligatoires.
+            </p>
           </div>
 
-          <div className="flex items-center gap-1.5 w-full md:w-auto bg-slate-100 dark:bg-zinc-800 p-1 rounded-2xl border border-slate-200/80 dark:border-zinc-700">
-            <button
-              onClick={() => setFilterStatus('all')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                filterStatus === 'all'
-                  ? 'bg-teal-600 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900'
-              }`}
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsUploadModalOpen(true)}
+              className={`h-10 text-xs font-bold rounded-2xl border-slate-200 dark:border-zinc-700 hover:bg-${roleTheme.light} hover:text-${roleTheme.text} transition-all cursor-pointer shadow-xs`}
             >
-              Tous
-            </button>
-            <button
-              onClick={() => setFilterStatus('warning')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                filterStatus === 'warning'
-                  ? 'bg-teal-600 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900'
-              }`}
+              <IoCloudUploadOutline className="h-4 w-4 mr-1.5" />
+              Téléverser
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className={`h-10 text-xs font-bold rounded-2xl border-slate-200 dark:border-zinc-700 hover:bg-${roleTheme.light} hover:text-${roleTheme.text} transition-all cursor-pointer shadow-xs`}
             >
-              En alerte ({stats.alerte})
-            </button>
-            <button
-              onClick={() => setFilterStatus('missing')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                filterStatus === 'missing'
-                  ? 'bg-teal-600 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900'
-              }`}
+              <IoDownloadOutline className="h-4 w-4 mr-1.5" />
+              Rapport PDF
+            </Button>
+            <Button
+              size="sm"
+              className={`h-10 text-xs font-bold rounded-2xl ${isRSAI ? 'bg-fuchsia-700 hover:bg-fuchsia-600' : 'bg-lime-700 hover:bg-lime-600'} text-white transition-all shadow-md cursor-pointer`}
             >
-              Manquants ({stats.manquant})
-            </button>
+              <IoMailOutline className="h-4 w-4 mr-1.5" />
+              Relancer tout ({stats.alerte + stats.manquant})
+            </Button>
           </div>
         </div>
+
+        {/* KPI Section */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <Card
+            className={`relative rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md border-l-4 ${isRSAI ? 'border-l-fuchsia-500' : 'border-l-lime-500'}`}
+          >
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-500 dark:text-zinc-400">Score de conformité</span>
+                <span
+                  className={`text-[10px] font-mono font-extrabold ${isRSAI ? 'text-fuchsia-600 bg-fuchsia-50 dark:bg-fuchsia-950/40 border-fuchsia-200 dark:border-fuchsia-800' : 'text-lime-600 bg-lime-50 dark:bg-lime-950/40 border-lime-200 dark:border-lime-800'} px-2 py-0.5 rounded-lg border`}
+                >
+                  +2.4% ce mois
+                </span>
+              </div>
+              <div className="mt-3 flex items-baseline gap-2">
+                <span className="text-3xl font-black tracking-tight">{stats.rate}%</span>
+                <span className="text-xs text-slate-400 dark:text-zinc-500 font-semibold">
+                  ({stats.valide}/{stats.total})
+                </span>
+              </div>
+              <div className="mt-3 h-2 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${stats.rate}%`,
+                    background: isRSAI
+                      ? 'linear-gradient(to right, #FF007A 0%, #FF1493 100%)'
+                      : 'linear-gradient(to right, #8BC34A 0%, #7CB342 100%)',
+                  }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="relative rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md border-l-4 border-l-emerald-500">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-500 dark:text-zinc-400">Documents valides</span>
+                <IoCheckmarkCircle className="h-5 w-5 text-emerald-500" />
+              </div>
+              <div className="mt-3">
+                <span className="text-3xl font-black tracking-tight text-emerald-600 dark:text-emerald-400">
+                  {stats.valide}
+                </span>
+                <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-1 font-medium">
+                  Dossiers conformes et validés
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="relative rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md border-l-4 border-l-amber-500">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-500 dark:text-zinc-400">Expirations imminentes</span>
+                <IoWarningOutline className="h-5 w-5 text-amber-500" />
+              </div>
+              <div className="mt-3">
+                <span className="text-3xl font-black tracking-tight text-amber-600 dark:text-amber-400">
+                  {stats.alerte}
+                </span>
+                <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-1 font-medium">Expire sous 30 jours</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="relative rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md border-l-4 border-l-rose-500">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-500 dark:text-zinc-400">Pièces manquantes</span>
+                <IoAlertCircle className="h-5 w-5 text-rose-500" />
+              </div>
+              <div className="mt-3">
+                <span className="text-3xl font-black tracking-tight text-rose-600 dark:text-rose-400">
+                  {stats.manquant}
+                </span>
+                <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-1 font-medium">
+                  Action requise immédiatement
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Control Bar & Matrix Table */}
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md overflow-hidden">
+          {/* Filters */}
+          <div className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="relative w-full md:w-80">
+              <IoSearchOutline className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Filtrer par enfant..."
+                className={`w-full pl-10 pr-4 py-2 text-xs font-medium bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 rounded-2xl focus:outline-none focus:border-${roleTheme.text} transition-all shadow-xs`}
+              />
+            </div>
+
+            <div className="flex items-center gap-1.5 w-full md:w-auto bg-slate-100 dark:bg-zinc-800 p-1 rounded-2xl border border-slate-200/80 dark:border-zinc-700">
+              <button
+                onClick={() => setFilterStatus('all')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  filterStatus === 'all'
+                    ? isRSAI
+                      ? 'bg-fuchsia-600 text-white shadow-xs'
+                      : 'bg-lime-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
+                }`}
+              >
+                Tous
+              </button>
+              <button
+                onClick={() => setFilterStatus('warning')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  filterStatus === 'warning'
+                    ? isRSAI
+                      ? 'bg-fuchsia-600 text-white shadow-xs'
+                      : 'bg-lime-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
+                }`}
+              >
+                En alerte ({stats.alerte})
+              </button>
+              <button
+                onClick={() => setFilterStatus('missing')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  filterStatus === 'missing'
+                    ? isRSAI
+                      ? 'bg-fuchsia-600 text-white shadow-xs'
+                      : 'bg-lime-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
+                }`}
+              >
+                Manquants ({stats.manquant})
+              </button>
+            </div>
+          </div>
 
         {/* Matrix Table */}
         <div className="overflow-x-auto">
@@ -459,9 +518,13 @@ export const CompliancePage: React.FC = () => {
                   {/* Child Profile */}
                   <TableCell className="py-4 pl-5">
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9 rounded-2xl border border-teal-500/20 shadow-xs">
+                      <Avatar
+                        className={`h-9 w-9 rounded-2xl border shadow-xs ${isRSAI ? 'border-fuchsia-500/20' : 'border-lime-500/20'}`}
+                      >
                         <AvatarImage src={enfant.photo} alt={enfant.prenom} />
-                        <AvatarFallback className="text-xs font-extrabold bg-teal-50 text-teal-800 dark:bg-teal-950 dark:text-teal-200">
+                        <AvatarFallback
+                          className={`text-xs font-extrabold ${isRSAI ? 'bg-fuchsia-50 text-fuchsia-800 dark:bg-fuchsia-950 dark:text-fuchsia-200' : 'bg-lime-50 text-lime-800 dark:bg-lime-950 dark:text-lime-200'}`}
+                        >
                           {enfant.prenom[0]}
                         </AvatarFallback>
                       </Avatar>
@@ -471,8 +534,12 @@ export const CompliancePage: React.FC = () => {
                         </span>
                         <span className="text-[10px] text-slate-400 dark:text-zinc-500 mt-0.5 font-bold">
                           {enfant.dateNaissance
-                            ? Math.floor((new Date().getTime() - new Date(enfant.dateNaissance).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
-                            : 0} ans
+                            ? Math.floor(
+                                (new Date().getTime() - new Date(enfant.dateNaissance).getTime()) /
+                                  (365.25 * 24 * 60 * 60 * 1000)
+                              )
+                            : 0}{' '}
+                          ans
                         </span>
                       </div>
                     </div>
@@ -539,7 +606,7 @@ export const CompliancePage: React.FC = () => {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => handleDemander(enfant.id, docType.id)}
-                                className="h-6 text-[10px] font-bold px-2 rounded-xl border-slate-200 dark:border-zinc-700 hover:bg-teal-50 hover:text-teal-600 cursor-pointer shadow-xs"
+                                className={`h-6 text-[10px] font-bold px-2 rounded-xl border-slate-200 dark:border-zinc-700 cursor-pointer shadow-xs ${isRSAI ? 'hover:bg-fuchsia-50 hover:text-fuchsia-600' : 'hover:bg-lime-50 hover:text-lime-600'}`}
                                 title={`Téléverser ${docType.label} pour ${enfant.prenom} ${enfant.nom}`}
                               >
                                 <IoCloudUploadOutline className="h-3 w-3" />
@@ -552,7 +619,7 @@ export const CompliancePage: React.FC = () => {
                                   size="sm"
                                   variant="outline"
                                   onClick={() => handleValider(doc)}
-                                  className="h-6 text-[10px] font-bold px-2 bg-teal-50 hover:bg-teal-100 border-teal-200 text-teal-700 rounded-xl cursor-pointer shadow-xs"
+                                  className="h-6 text-[10px] font-bold px-2 bg-emerald-50 hover:bg-emerald-100 border-emerald-200 text-emerald-700 rounded-xl cursor-pointer shadow-xs"
                                 >
                                   <IoCheckmarkOutline className="h-3 w-3" />
                                 </Button>
@@ -572,7 +639,7 @@ export const CompliancePage: React.FC = () => {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => handleRelancer(doc.id)}
-                                className="h-6 text-[10px] font-bold px-2 rounded-xl border-slate-200 dark:border-zinc-700 hover:bg-teal-50 hover:text-teal-600 cursor-pointer shadow-xs"
+                                className={`h-6 text-[10px] font-bold px-2 rounded-xl border-slate-200 dark:border-zinc-700 cursor-pointer shadow-xs ${isRSAI ? 'hover:bg-fuchsia-50 hover:text-fuchsia-600' : 'hover:bg-lime-50 hover:text-lime-600'}`}
                               >
                                 <IoRefreshOutline className="h-3 w-3" />
                               </Button>
@@ -583,7 +650,7 @@ export const CompliancePage: React.FC = () => {
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => handleDownload(doc.fichierUrl!)}
-                                className="h-6 text-[10px] font-bold px-2 rounded-xl hover:bg-teal-50 hover:text-teal-600 cursor-pointer"
+                                className={`h-6 text-[10px] font-bold px-2 rounded-xl cursor-pointer ${isRSAI ? 'hover:bg-fuchsia-50 hover:text-fuchsia-600' : 'hover:bg-lime-50 hover:text-lime-600'}`}
                               >
                                 <IoDownloadOutline className="h-3 w-3" />
                               </Button>
@@ -596,7 +663,11 @@ export const CompliancePage: React.FC = () => {
 
                   {/* Actions */}
                   <TableCell className="text-right py-4 pr-5">
-                    <Button variant="ghost" size="sm" className="h-8 text-xs font-bold px-3 text-slate-600 dark:text-zinc-400 hover:text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/40 rounded-xl cursor-pointer">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`h-8 text-xs font-bold px-3 text-slate-600 dark:text-zinc-400 rounded-xl cursor-pointer ${isRSAI ? 'hover:text-fuchsia-600 hover:bg-fuchsia-50 dark:hover:bg-fuchsia-950/40' : 'hover:text-lime-600 hover:bg-lime-50 dark:hover:bg-lime-950/40'}`}
+                    >
                       Relancer
                     </Button>
                   </TableCell>
@@ -605,26 +676,41 @@ export const CompliancePage: React.FC = () => {
               ))}
             </TableBody>
           </Table>
-        </div>
-      </Card>
+          </div>
+        </Card>
 
-      {/* Compliance Advisory Notice */}
-      <div className="p-6 rounded-3xl bg-slate-900 dark:bg-zinc-900 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 shadow-xl border border-slate-800">
-        <div className="flex items-start gap-4">
-          <div className="p-3 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20 shrink-0">
-            <IoDocumentTextOutline className="h-6 w-6" />
+        {/* Compliance Advisory Notice */}
+        <div className="p-6 rounded-xl bg-slate-900 dark:bg-zinc-900 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 shadow-xl border border-slate-800">
+          <div className="flex items-start gap-4">
+            <div
+              className={`p-3 rounded-2xl shrink-0 ${isRSAI ? 'bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20' : 'bg-lime-500/10 text-lime-400 border border-lime-500/20'}`}
+            >
+              <IoDocumentTextOutline className="h-6 w-6" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-sm font-extrabold tracking-tight">Protocole d'Inspection PMI</h4>
+              <p className="text-xs text-slate-400 dark:text-zinc-400 font-medium leading-relaxed">
+                {stats.manquant + stats.alerte} anomalies identifiées. La relance automatique transmettra un lien de
+                téléversement sécurisé directement sur l'application parentale.
+              </p>
+            </div>
           </div>
-          <div className="space-y-1">
-            <h4 className="text-sm font-extrabold tracking-tight">Protocole d'Inspection PMI</h4>
-            <p className="text-xs text-slate-400 dark:text-zinc-400 font-medium leading-relaxed">
-              {stats.manquant + stats.alerte} anomalies identifiées. La relance automatique transmettra un lien d'versement sécurisé directement sur l'application parentale.
-            </p>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className={`h-10 text-xs font-bold rounded-2xl border-slate-700 bg-slate-800 text-slate-200 shrink-0 transition-all cursor-pointer shadow-xs ${isRSAI ? 'hover:bg-fuchsia-600 hover:text-white hover:border-fuchsia-600' : 'hover:bg-lime-600 hover:text-white hover:border-lime-600'}`}
+          >
+            En savoir plus
+          </Button>
         </div>
-        <Button variant="outline" size="sm" className="h-10 text-xs font-bold rounded-2xl border-slate-700 bg-slate-800 text-slate-200 hover:bg-teal-600 hover:text-white hover:border-teal-600 shrink-0 transition-all cursor-pointer shadow-xs">
-          En savoir plus
-        </Button>
-      </div>
+
+        {/* Professional Footer */}
+        <footer className="mt-8 pt-6 border-t border-slate-200 dark:border-zinc-800 text-center">
+          <p className="text-xs text-slate-500 dark:text-zinc-500 font-medium">
+            Kids'Med IA © 2026 - Conformité Documentaire Automatisée
+          </p>
+        </footer>
+      </motion.div>
 
       {/* Modals */}
       {user && selectedEnfantId && (
@@ -668,7 +754,9 @@ export const CompliancePage: React.FC = () => {
           >
             <div className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-950/50 text-teal-600 border border-teal-200 dark:border-teal-800">
+                <div
+                  className={`p-2 rounded-xl border ${isRSAI ? 'bg-fuchsia-50 dark:bg-fuchsia-950/50 text-fuchsia-600 border-fuchsia-200 dark:border-fuchsia-800' : 'bg-lime-50 dark:bg-lime-950/50 text-lime-600 border-lime-200 dark:border-lime-800'}`}
+                >
                   <IoCloudUploadOutline className="h-5 w-5" />
                 </div>
                 <h3 className="text-sm font-black tracking-tight">Téléverser un document</h3>
@@ -695,25 +783,37 @@ export const CompliancePage: React.FC = () => {
 
             <div className="p-6 space-y-4 text-xs overflow-y-auto flex-1">
               {uploadForm.enfantId && uploadForm.type ? (
-                <div className="p-4 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-2xl">
-                  <p className="text-xs text-teal-700 dark:text-teal-400 font-bold">
-                    ⚡ Upload rapide : {allDocumentsObligatoires.find((d: any) => d.id === uploadForm.type)?.label} pour {enfants.find(e => e.id === uploadForm.enfantId)?.prenom}
+                <div
+                  className={`p-4 rounded-2xl border ${isRSAI ? 'bg-fuchsia-50 dark:bg-fuchsia-950/30 border-fuchsia-200 dark:border-fuchsia-800' : 'bg-lime-50 dark:bg-lime-950/30 border-lime-200 dark:border-lime-800'}`}
+                >
+                  <p className={`text-xs font-bold ${isRSAI ? 'text-fuchsia-700 dark:text-fuchsia-400' : 'text-lime-700 dark:text-lime-400'}`}>
+                    ⚡ Upload rapide :{' '}
+                    {allDocumentsObligatoires.find((d: any) => d.id === uploadForm.type)?.label} pour{' '}
+                    {enfants.find((e) => e.id === uploadForm.enfantId)?.prenom}
                   </p>
-                  <p className="text-[10px] text-teal-600 dark:text-teal-500 mt-1">
+                  <p className={`text-[10px] mt-1 ${isRSAI ? 'text-fuchsia-600 dark:text-fuchsia-500' : 'text-lime-600 dark:text-lime-500'}`}>
                     Les champs sont pré-remplis, il suffit de téléverser le fichier!
                   </p>
                 </div>
               ) : (
-                <div className="p-4 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-2xl">
-                  <p className="text-xs text-teal-700 dark:text-teal-400 font-medium">
-                    📋 Téléversez directement un document pour un enfant. Le document sera automatiquement ajouté à son dossier.
+                <div
+                  className={`p-4 rounded-2xl border ${isRSAI ? 'bg-fuchsia-50 dark:bg-fuchsia-950/30 border-fuchsia-200 dark:border-fuchsia-800' : 'bg-lime-50 dark:bg-lime-950/30 border-lime-200 dark:border-lime-800'}`}
+                >
+                  <p className={`text-xs font-medium ${isRSAI ? 'text-fuchsia-700 dark:text-fuchsia-400' : 'text-lime-700 dark:text-lime-400'}`}>
+                    📋 Téléversez directement un document pour un enfant. Le document sera automatiquement ajouté à son
+                    dossier.
                   </p>
                 </div>
               )}
 
               <div className="space-y-1.5">
                 <Label htmlFor="enfantSelect" className="font-bold text-slate-700 dark:text-zinc-300">
-                  Enfant {uploadForm.enfantId && <span className="text-teal-600 text-[10px]">(pré-sélectionné)</span>}
+                  Enfant{' '}
+                  {uploadForm.enfantId && (
+                    <span className={`text-[10px] ${isRSAI ? 'text-fuchsia-600' : 'text-lime-600'}`}>
+                      (pré-sélectionné)
+                    </span>
+                  )}
                 </Label>
                 <Select
                   key={`enfant-${uploadForm.enfantId}`}
@@ -739,7 +839,12 @@ export const CompliancePage: React.FC = () => {
 
               <div className="space-y-1.5">
                 <Label htmlFor="docTypeSelect" className="font-bold text-slate-700 dark:text-zinc-300">
-                  Type de document {uploadForm.type && <span className="text-teal-600 text-[10px]">(pré-sélectionné)</span>}
+                  Type de document{' '}
+                  {uploadForm.type && (
+                    <span className={`text-[10px] ${isRSAI ? 'text-fuchsia-600' : 'text-lime-600'}`}>
+                      (pré-sélectionné)
+                    </span>
+                  )}
                 </Label>
                 <Select
                   key={`doctype-${uploadForm.type}`}
@@ -785,7 +890,7 @@ export const CompliancePage: React.FC = () => {
                     <IoCloudUploadOutline className="h-10 w-10 mx-auto text-slate-400 mb-2" />
                     {selectedFile ? (
                       <div>
-                        <p className="text-xs font-bold text-teal-600 dark:text-teal-400">
+                        <p className={`text-xs font-bold ${isRSAI ? 'text-fuchsia-600 dark:text-fuchsia-400' : 'text-lime-600 dark:text-lime-400'}`}>
                           ✓ {selectedFile.name}
                         </p>
                         <p className="text-[10px] text-slate-500 dark:text-zinc-400 mt-1">
@@ -871,7 +976,7 @@ export const CompliancePage: React.FC = () => {
               <Button
                 type="button"
                 disabled={uploadingDoc || !uploadForm.enfantId || !uploadForm.nom || !selectedFile}
-                className="h-10 text-xs font-bold rounded-2xl bg-teal-600 hover:bg-teal-700 text-white cursor-pointer shadow-md"
+                className={`h-10 text-xs font-bold rounded-2xl text-white cursor-pointer shadow-md ${isRSAI ? 'bg-fuchsia-700 hover:bg-fuchsia-600' : 'bg-lime-700 hover:bg-lime-600'}`}
                 onClick={async () => {
                   if (!selectedFile) return;
 
@@ -911,7 +1016,6 @@ export const CompliancePage: React.FC = () => {
           </motion.div>
         </div>
       )}
-
-    </motion.div>
+    </AppBackground>
   );
 };

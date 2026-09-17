@@ -13,10 +13,13 @@ import {
   IoArrowBackOutline,
   IoWarningOutline,
   IoShieldCheckmarkOutline,
+  IoSparkles,
 } from 'react-icons/io5';
 import { enfantApi } from '@/services/api';
 import { toast } from 'sonner';
 import type { Enfant, Vaccin } from '@/types';
+import { AppBackground } from '@/components/AppBackground';
+import { motion } from 'framer-motion';
 
 /**
  * Page d'édition des informations médicales d'un enfant par les parents
@@ -136,34 +139,42 @@ export const EditMedicalInfoPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6">
-        <Card>
-          <CardContent className="p-12 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-gray-600">Chargement...</p>
-          </CardContent>
-        </Card>
-      </div>
+      <AppBackground>
+        <div className="max-w-6xl mx-auto p-6 md:p-10 flex items-center justify-center h-[50vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600 dark:border-violet-400 mx-auto mb-4"></div>
+            <p className="text-sm text-slate-600 dark:text-zinc-400">Chargement...</p>
+          </div>
+        </div>
+      </AppBackground>
     );
   }
 
   if (!enfant) {
     return (
-      <div className="container mx-auto p-6">
-        <Card>
-          <CardContent className="p-12 text-center">
-            <IoWarningOutline className="text-6xl text-red-500 mx-auto mb-4" />
-            <p className="text-xl text-gray-700">Enfant non trouvé</p>
-          </CardContent>
-        </Card>
-      </div>
+      <AppBackground>
+        <div className="max-w-6xl mx-auto p-6 md:p-10">
+          <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
+            <CardContent className="p-12 text-center">
+              <IoWarningOutline className="h-16 w-16 text-red-500 dark:text-red-400 mx-auto mb-4" />
+              <p className="text-xl text-slate-900 dark:text-zinc-100">Enfant non trouvé</p>
+            </CardContent>
+          </Card>
+        </div>
+      </AppBackground>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
       {/* Header */}
-      <div className="mb-6">
+      <div className="border-b border-slate-200/80 dark:border-zinc-800 pb-5">
         <Button variant="ghost" onClick={() => navigate('/parent/portail')} className="mb-4">
           <IoArrowBackOutline className="mr-2" />
           Retour
@@ -178,7 +189,7 @@ export const EditMedicalInfoPage: React.FC = () => {
       </div>
 
       {/* Alerte validation */}
-      <Card className="mb-6 border-blue-200 bg-blue-50">
+      <Card className="mb-6 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/20 backdrop-blur-md">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <IoShieldCheckmarkOutline className="text-2xl text-blue-600 flex-shrink-0 mt-1" />
@@ -194,7 +205,7 @@ export const EditMedicalInfoPage: React.FC = () => {
       </Card>
 
       {/* Allergies */}
-      <Card className="mb-6">
+      <Card className="mb-6 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
         <CardHeader>
           <CardTitle>Allergies</CardTitle>
           <CardDescription>
@@ -236,7 +247,7 @@ export const EditMedicalInfoPage: React.FC = () => {
       </Card>
 
       {/* Antécédents */}
-      <Card className="mb-6">
+      <Card className="mb-6 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
         <CardHeader>
           <CardTitle>Antécédents médicaux</CardTitle>
           <CardDescription>
@@ -278,7 +289,7 @@ export const EditMedicalInfoPage: React.FC = () => {
       </Card>
 
       {/* Groupe sanguin */}
-      <Card className="mb-6">
+      <Card className="mb-6 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
         <CardHeader>
           <CardTitle>Groupe sanguin</CardTitle>
           <CardDescription>
@@ -313,7 +324,7 @@ export const EditMedicalInfoPage: React.FC = () => {
       </Card>
 
       {/* Vaccins */}
-      <Card className="mb-6">
+      <Card className="mb-6 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
         <CardHeader>
           <CardTitle>Vaccins</CardTitle>
           <CardDescription>
@@ -375,10 +386,10 @@ export const EditMedicalInfoPage: React.FC = () => {
 
       {/* Actions */}
       <div className="flex gap-4">
-        <Button variant="outline" onClick={() => navigate('/parent/portail')} className="flex-1">
+        <Button variant="outline" onClick={() => navigate('/parent/portail')} className="flex-1 border-slate-200 dark:border-zinc-800">
           Annuler
         </Button>
-        <Button onClick={handleSave} disabled={saving} className="flex-1">
+        <Button onClick={handleSave} disabled={saving} className="flex-1 bg-violet-600 hover:bg-violet-700">
           {saving ? (
             <>
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -392,6 +403,22 @@ export const EditMedicalInfoPage: React.FC = () => {
           )}
         </Button>
       </div>
-    </div>
+
+      {/* Footer */}
+      <footer className="mt-16 pt-8 border-t border-slate-200/80 dark:border-zinc-800">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+            <span className="font-bold text-violet-600 dark:text-violet-400">Kids'Med IA</span>
+            <span>•</span>
+            <span>© 2026 Tous droits réservés</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-zinc-400">
+            <a href="#" className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors">Aide</a>
+            <a href="#" className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors">Confidentialité</a>
+          </div>
+        </div>
+      </footer>
+      </motion.div>
+    </AppBackground>
   );
 };

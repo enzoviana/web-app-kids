@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { IoNotifications, IoCheckmarkCircle, IoWarning, IoInformationCircle, IoTrash, IoReloadOutline, IoAlertCircleOutline, IoDocumentTextOutline } from 'react-icons/io5';
+import { IoNotifications, IoCheckmarkCircle, IoWarning, IoInformationCircle, IoTrash, IoReloadOutline, IoAlertCircleOutline, IoDocumentTextOutline, IoSparkles } from 'react-icons/io5';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,8 @@ import { fr } from 'date-fns/locale';
 import { useAuth } from '@/hooks/useAuth';
 import { notificationApi } from '@/services/api';
 import { mockData } from '@/data/mockData';
+import { AppBackground } from '@/components/AppBackground';
+import { motion } from 'framer-motion';
 
 interface Notification {
   id: string;
@@ -22,6 +24,27 @@ interface Notification {
 
 export const NotificationsPage: React.FC = () => {
   const { user } = useAuth();
+
+  // Role detection for dynamic theming
+  const isRSAI = user?.role === 'rsai' || user?.role === 'referent_sante';
+  const isCreche = user?.role === 'creche' || user?.role === 'professionnel';
+  const isMedecin = user?.role === 'medecin';
+  const isAuxiliaire = user?.role === 'auxiliaire' || user?.role === 'professionnel_puericulture';
+  const isParent = user?.role === 'parent';
+
+  // Dynamic theme based on role
+  const roleTheme = isRSAI
+    ? { hex: '#FF007A', name: 'RSAI' }
+    : isCreche
+    ? { hex: '#8BC34A', name: 'Crèche' }
+    : isMedecin
+    ? { hex: '#0099FF', name: 'Médecin' }
+    : isAuxiliaire
+    ? { hex: '#14B8A6', name: 'Auxiliaire' }
+    : isParent
+    ? { hex: '#8B5CF6', name: 'Parent' }
+    : { hex: '#64748B', name: 'Utilisateur' };
+
   const [filter, setFilter] = useState<string>('all');
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -165,29 +188,50 @@ export const NotificationsPage: React.FC = () => {
   };
 
   return (
-    <div className="p-8 space-y-6 bg-slate-50 dark:bg-zinc-950 min-h-screen">
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900 dark:text-zinc-100">Centre de Notifications & Alertes</h1>
-          <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1">
-            {nonLues} notification{nonLues > 1 ? 's' : ''} non lue{nonLues > 1 ? 's' : ''}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          {isLoading ? (
-            <IoReloadOutline className="h-5 w-5 animate-spin text-slate-400" />
-          ) : (
-            <>
-              <Button variant="outline" size="sm" onClick={handleMarkAllAsRead} disabled={nonLues === 0}>
-                Tout marquer comme lu
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-                <IoReloadOutline className="h-4 w-4 mr-2" />
-                Actualiser
-              </Button>
-            </>
-          )}
+      <div className="border-b border-slate-200/80 dark:border-zinc-800 pb-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2.5 mb-2">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight">Centre de Notifications</h1>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold shadow-xs"
+                style={{
+                  backgroundColor: `color-mix(in srgb, ${roleTheme.hex} 10%, transparent)`,
+                  borderColor: `color-mix(in srgb, ${roleTheme.hex} 30%, transparent)`,
+                  color: roleTheme.hex,
+                  border: '1px solid'
+                }}
+              >
+                <IoSparkles className="h-3.5 w-3.5" />
+                {roleTheme.name}
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-zinc-400">
+              {nonLues} notification{nonLues > 1 ? 's' : ''} non lue{nonLues > 1 ? 's' : ''}
+            </p>
+          </div>
+          <div className="flex gap-2">
+            {isLoading ? (
+              <IoReloadOutline className="h-5 w-5 animate-spin text-slate-400 dark:text-zinc-500" />
+            ) : (
+              <>
+                <Button variant="outline" size="sm" onClick={handleMarkAllAsRead} disabled={nonLues === 0} className="border-slate-200 dark:border-zinc-800">
+                  Tout marquer comme lu
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="border-slate-200 dark:border-zinc-800">
+                  <IoReloadOutline className="h-4 w-4 mr-2" />
+                  Actualiser
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -354,17 +398,20 @@ export const NotificationsPage: React.FC = () => {
       </Card>
 
       {/* Paramètres */}
-      <Card className="border-primary/20 bg-primary/5">
+      <Card className="rounded-xl border backdrop-blur-md" style={{
+        borderColor: `color-mix(in srgb, ${roleTheme.hex} 20%, transparent)`,
+        backgroundColor: `color-mix(in srgb, ${roleTheme.hex} 5%, transparent)`
+      }}>
         <CardContent className="p-6">
           <div className="flex gap-4">
-            <IoNotifications className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+            <IoNotifications className="h-6 w-6 flex-shrink-0 mt-1" style={{ color: roleTheme.hex }} />
             <div>
-              <p className="font-semibold text-slate-900 mb-1">Paramètres de notification</p>
-              <p className="text-sm text-slate-600 mb-3">
+              <p className="font-semibold text-slate-900 dark:text-zinc-100 mb-1">Paramètres de notification</p>
+              <p className="text-sm text-slate-600 dark:text-zinc-400 mb-3">
                 Personnalisez vos préférences de notification : choisissez les types d'alertes que vous souhaitez recevoir
                 et configurez les canaux de communication (email, SMS, push).
               </p>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="border-slate-200 dark:border-zinc-800">
                 Configurer
               </Button>
             </div>
@@ -373,6 +420,22 @@ export const NotificationsPage: React.FC = () => {
       </Card>
       </>
       )}
-    </div>
+
+      {/* Footer */}
+      <footer className="mt-16 pt-8 border-t border-slate-200/80 dark:border-zinc-800">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+            <span className="font-bold" style={{ color: roleTheme.hex }}>Kids'Med IA</span>
+            <span>•</span>
+            <span>© 2026 Tous droits réservés</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-zinc-400">
+            <a href="#" className="hover:opacity-70 transition-opacity" style={{ color: roleTheme.hex }}>Aide</a>
+            <a href="#" className="hover:opacity-70 transition-opacity" style={{ color: roleTheme.hex }}>Confidentialité</a>
+          </div>
+        </div>
+      </footer>
+      </motion.div>
+    </AppBackground>
   );
 };

@@ -11,6 +11,7 @@ import {
   IoDocumentTextOutline,
   IoArrowBackOutline,
   IoCheckmarkCircleOutline,
+  IoSparkles,
 } from 'react-icons/io5';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -25,6 +26,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { AppBackground } from '@/components/AppBackground';
+import { motion } from 'framer-motion';
 
 /**
  * Page RGPD - Gestion des données personnelles
@@ -130,22 +133,31 @@ export const MesDonneesPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
       {/* Header */}
-      <div className="mb-6">
+      <div className="border-b border-slate-200/80 dark:border-zinc-800 pb-5">
         <Button variant="ghost" onClick={() => navigate('/parent/parametres')} className="mb-4">
           <IoArrowBackOutline className="mr-2" />
           Retour
         </Button>
-        <h1 className="text-3xl font-bold flex items-center gap-3">
-          <IoShieldCheckmarkOutline className="text-primary" />
-          Mes Données Personnelles
-        </h1>
-        <p className="text-gray-600 mt-2">Gestion de vos données conformément au RGPD</p>
+        <div className="flex items-center gap-2.5 mb-2">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight">Mes Données Personnelles</h1>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-violet-50 dark:bg-violet-950/50 text-violet-700 dark:text-violet-400 border border-violet-200 dark:border-violet-800 shadow-xs">
+            <IoSparkles className="h-3.5 w-3.5" />
+            RGPD
+          </span>
+        </div>
+        <p className="text-xs text-slate-500 dark:text-zinc-400">Gestion de vos données conformément au RGPD</p>
       </div>
 
       {/* Informations RGPD */}
-      <Card className="mb-6 border-blue-200 bg-blue-50">
+      <Card className="mb-6 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/20 backdrop-blur-md">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <IoCheckmarkCircleOutline className="text-2xl text-blue-600 flex-shrink-0 mt-1" />
@@ -163,7 +175,7 @@ export const MesDonneesPage: React.FC = () => {
       </Card>
 
       {/* Données collectées */}
-      <Card className="mb-6">
+      <Card className="mb-6 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
         <CardHeader>
           <CardTitle>Données que nous collectons</CardTitle>
           <CardDescription>
@@ -210,7 +222,7 @@ export const MesDonneesPage: React.FC = () => {
       </Card>
 
       {/* Consentements */}
-      <Card className="mb-6">
+      <Card className="mb-6 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
         <CardHeader>
           <CardTitle>Mes consentements</CardTitle>
           <CardDescription>Autorisations que vous avez données</CardDescription>
@@ -251,7 +263,7 @@ export const MesDonneesPage: React.FC = () => {
       </Card>
 
       {/* Actions RGPD */}
-      <Card className="mb-6">
+      <Card className="mb-6 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
         <CardHeader>
           <CardTitle>Actions disponibles</CardTitle>
           <CardDescription>
@@ -339,24 +351,40 @@ export const MesDonneesPage: React.FC = () => {
       </Card>
 
       {/* Contact DPO */}
-      <Card>
+      <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
         <CardHeader>
           <CardTitle>Besoin d'aide ?</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-start gap-3">
-            <IoDocumentTextOutline className="text-2xl text-gray-500 flex-shrink-0" />
-            <div className="text-sm text-gray-700">
+            <IoDocumentTextOutline className="text-2xl text-slate-500 dark:text-zinc-400 flex-shrink-0" />
+            <div className="text-sm text-slate-700 dark:text-zinc-300">
               <p className="mb-2">
                 Pour toute question concernant vos données personnelles ou l'exercice de vos
                 droits, contactez notre Délégué à la Protection des Données (DPO) :
               </p>
               <p className="font-medium">dpo@kidsmed-ia.fr</p>
-              <p className="text-gray-600 mt-2">Réponse sous 30 jours maximum</p>
+              <p className="text-slate-600 dark:text-zinc-400 mt-2">Réponse sous 30 jours maximum</p>
             </div>
           </div>
         </CardContent>
       </Card>
-    </div>
+
+      {/* Footer */}
+      <footer className="mt-16 pt-8 border-t border-slate-200/80 dark:border-zinc-800">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+            <span className="font-bold text-violet-600 dark:text-violet-400">Kids'Med IA</span>
+            <span>•</span>
+            <span>© 2026 Tous droits réservés</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-zinc-400">
+            <a href="#" className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors">Aide</a>
+            <a href="#" className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors">Confidentialité</a>
+          </div>
+        </div>
+      </footer>
+      </motion.div>
+    </AppBackground>
   );
 };

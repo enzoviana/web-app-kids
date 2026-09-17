@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -26,8 +26,12 @@ import {
   IoCalendarOutline,
   IoStarOutline,
   IoBusinessOutline,
+  IoMoonOutline,
+  IoSunnyOutline,
 } from 'react-icons/io5';
 import { useAuth } from '@/hooks/useAuth';
+import { useRoleTheme } from '@/hooks/useRoleTheme';
+import { useTheme } from '@/hooks/useTheme';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -43,7 +47,6 @@ interface MenuItem {
   badge?: string;
 }
 
-// Menus mis à jour strictement alignés avec les routes créées
 const menuByRole: Record<UserRole, MenuItem[]> = {
   creche: [
     { id: 'dashboard', label: 'Tableau de bord', icon: <IoHomeOutline size={18} />, path: '/creche' },
@@ -101,115 +104,66 @@ const menuByRole: Record<UserRole, MenuItem[]> = {
   ],
 };
 
-// Configuration du thème dynamique selon le rôle (couleurs de liseré et d'accents raffinés)
-const roleTheme: Record<UserRole, {
-  label: string;
-  badgeClass: string;
-  avatarBg: string;
-  logoBg: string;
-  activeItem: string;
-  activeIndicator: string;
-  badgeDot: string;
-}> = {
-  creche: {
-    label: 'Espace Crèche',
-    badgeClass: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
-    avatarBg: 'bg-emerald-600 text-white',
-    logoBg: 'bg-emerald-600 text-white',
-    activeItem: 'bg-emerald-50/80 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200 font-semibold',
-    activeIndicator: 'bg-emerald-600',
-    badgeDot: 'bg-emerald-500',
-  },
-  medecin: {
-    label: 'Espace Médecin',
-    badgeClass: 'bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-400 border-sky-200 dark:border-sky-800',
-    avatarBg: 'bg-sky-600 text-white',
-    logoBg: 'bg-sky-600 text-white',
-    activeItem: 'bg-sky-50/80 dark:bg-sky-950/30 text-sky-900 dark:text-sky-200 font-semibold',
-    activeIndicator: 'bg-sky-600',
-    badgeDot: 'bg-sky-500',
-  },
-  rsai: {
-    label: 'Espace RSAI',
-    badgeClass: 'bg-fuchsia-50 text-fuchsia-700 dark:bg-fuchsia-950/50 dark:text-fuchsia-400 border-fuchsia-200 dark:border-fuchsia-800',
-    avatarBg: 'bg-fuchsia-600 text-white',
-    logoBg: 'bg-fuchsia-600 text-white',
-    activeItem: 'bg-fuchsia-50/80 dark:bg-fuchsia-950/30 text-fuchsia-900 dark:text-fuchsia-200 font-semibold',
-    activeIndicator: 'bg-fuchsia-600',
-    badgeDot: 'bg-fuchsia-500',
-  },
-  auxiliaire: {
-    label: 'Espace Auxiliaire',
-    badgeClass: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800',
-    avatarBg: 'bg-indigo-600 text-white',
-    logoBg: 'bg-indigo-600 text-white',
-    activeItem: 'bg-indigo-50/80 dark:bg-indigo-950/30 text-indigo-900 dark:text-indigo-200 font-semibold',
-    activeIndicator: 'bg-indigo-600',
-    badgeDot: 'bg-indigo-500',
-  },
-  parent: {
-    label: 'Espace Parent',
-    badgeClass: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400 border-amber-200 dark:border-amber-800',
-    avatarBg: 'bg-amber-600 text-white',
-    logoBg: 'bg-amber-600 text-white',
-    activeItem: 'bg-amber-50/80 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200 font-semibold',
-    activeIndicator: 'bg-amber-600',
-    badgeDot: 'bg-amber-500',
-  },
-  superadmin: {
-    label: 'Super Admin',
-    badgeClass: 'bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-400 border-purple-200 dark:border-purple-800',
-    avatarBg: 'bg-purple-600 text-white',
-    logoBg: 'bg-purple-600 text-white',
-    activeItem: 'bg-purple-50/80 dark:bg-purple-950/30 text-purple-900 dark:text-purple-200 font-semibold',
-    activeIndicator: 'bg-purple-600',
-    badgeDot: 'bg-purple-500',
-  },
-  developpeur: {
-    label: 'Développeur',
-    badgeClass: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950/50 dark:text-cyan-400 border-cyan-200 dark:border-cyan-800',
-    avatarBg: 'bg-cyan-600 text-white',
-    logoBg: 'bg-cyan-600 text-white',
-    activeItem: 'bg-cyan-50/80 dark:bg-cyan-950/30 text-cyan-900 dark:text-cyan-200 font-semibold',
-    activeIndicator: 'bg-cyan-600',
-    badgeDot: 'bg-cyan-500',
-  },
-};
-
 interface SidebarV2Props {
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
+  mobileOpen?: boolean;
+  setMobileOpen?: (open: boolean) => void;
 }
 
-export const SidebarV2: React.FC<SidebarV2Props> = ({ collapsed, setCollapsed }) => {
+export const SidebarV2: React.FC<SidebarV2Props> = ({
+  collapsed,
+  setCollapsed,
+  mobileOpen = false,
+  setMobileOpen,
+}) => {
   const { user, logout } = useAuth();
+  const roleTheme = useRoleTheme();
+  const { theme, toggleTheme } = useTheme();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   if (!user) return null;
 
-  // Map backend role to frontend role for lookups
+  const handleMobileNavClick = () => {
+    if (setMobileOpen && window.innerWidth < 768) {
+      setMobileOpen(false);
+    }
+  };
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const isCollapsed = isMobile ? false : collapsed;
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const frontendRole = mapBackendRoleToRoute(user.role) as UserRole;
 
-  // Calculate dynamic document badge count based on role
   const docsBadgeCount = useMemo(() => {
     if (user.role === 'parent') {
-      // For parents: count documents en_attente, rejete, or expire_bientot for their children
-      const parentEnfants = mockData.enfants.filter(e => e.parents_ids.includes(user.id));
-      return mockData.documents.filter(d =>
-        parentEnfants.some(e => e._id === d.enfant_id) &&
-        ['en_attente', 'rejete', 'expire_bientot'].includes(d.statut)
+      const parentEnfants = mockData.enfants.filter((e) => e.parents_ids.includes(user.id));
+      return mockData.documents.filter(
+        (d) =>
+          parentEnfants.some((e) => e._id === d.enfant_id) &&
+          ['en_attente', 'rejete', 'expire_bientot'].includes(d.statut)
       ).length;
-    } else if (['super_admin', 'superadmin', 'admin_structure', 'creche', 'professionnel', 'auxiliaire'].includes(user.role)) {
-      // For staff: count documents soumis (awaiting validation)
-      return mockData.documents.filter(d => d.statut === 'soumis').length;
+    } else if (
+      ['super_admin', 'superadmin', 'admin_structure', 'creche', 'professionnel', 'auxiliaire'].includes(
+        user.role
+      )
+    ) {
+      return mockData.documents.filter((d) => d.statut === 'soumis').length;
     }
     return 0;
   }, [user.id, user.role]);
 
-  // Update menu items with dynamic badges
   const menuItems = useMemo(() => {
     const items = menuByRole[frontendRole] || [];
-    return items.map(item => {
+    return items.map((item) => {
       if (item.id === 'documents' && docsBadgeCount > 0) {
         return { ...item, badge: docsBadgeCount.toString() };
       }
@@ -217,28 +171,34 @@ export const SidebarV2: React.FC<SidebarV2Props> = ({ collapsed, setCollapsed })
     });
   }, [frontendRole, docsBadgeCount]);
 
-  const theme = roleTheme[frontendRole];
-
   return (
     <motion.div
       initial={false}
-      animate={{ width: collapsed ? 76 : 260 }}
-      transition={{ duration: 0.25, ease: [0.2, 0, 0, 1] }}
+      animate={{ width: isCollapsed ? 76 : 260 }}
+      transition={{ duration: 0.2, ease: 'easeInOut' }}
       className={cn(
-        'h-screen bg-white dark:bg-zinc-900 border-r border-slate-200/80 dark:border-zinc-800 flex flex-col relative shrink-0 z-40 font-sans select-none shadow-xs'
+        // Fond opaque garanti (exit les transparences qui se superposent mal)
+        'h-screen bg-white dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 flex flex-col shrink-0 font-sans select-none z-40 relative shadow-md',
+        'fixed md:relative top-0 left-0 transition-transform duration-300 ease-in-out',
+        mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
+        'w-[260px] md:w-auto'
       )}
     >
-      {/* Bouton pour plier/déplier */}
+      {/* Liseré latéral gauche aux couleurs dynamiques du rôle */}
+    
+
+      {/* Bouton de repli Desktop */}
       <button
         onClick={() => setCollapsed(!collapsed)}
         className={cn(
           'absolute -right-3 top-6 z-50',
-          'w-6 h-6 rounded-full bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 shadow-xs',
+          'w-6 h-6 rounded-full bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 shadow-sm',
           'flex items-center justify-center',
-          'hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors'
+          'hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors',
+          'hidden md:flex'
         )}
       >
-        {collapsed ? (
+        {isCollapsed ? (
           <IoChevronForward className="h-3 w-3 text-slate-600 dark:text-zinc-300" />
         ) : (
           <IoChevronBack className="h-3 w-3 text-slate-600 dark:text-zinc-300" />
@@ -246,28 +206,38 @@ export const SidebarV2: React.FC<SidebarV2Props> = ({ collapsed, setCollapsed })
       </button>
 
       {/* Header & Logo */}
-      <div className="p-4 border-b border-slate-100 dark:border-zinc-800/80 flex items-center h-18">
-        <div className="flex items-center gap-3 overflow-hidden">
-          <div className={cn(
-            'w-9 h-9 rounded-xl flex items-center justify-center shadow-xs shrink-0 font-bold text-sm transition-colors',
-            theme.logoBg
-          )}>
+      <div className="p-4 border-b border-slate-200 dark:border-zinc-800 flex items-center h-18 relative">
+        <div className="flex items-center gap-3 overflow-hidden relative z-10 w-full">
+          <div
+            className={cn(
+              'w-9 h-9 rounded-xl flex items-center justify-center shadow-md shrink-0 font-bold text-sm text-white',
+              roleTheme.bg
+            )}
+          >
             K
           </div>
           <AnimatePresence>
-            {!collapsed && (
+            {!isCollapsed && (
               <motion.div
-                initial={{ opacity: 0, x: -8 }}
+                initial={{ opacity: 0, x: -6 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -8 }}
+                exit={{ opacity: 0, x: -6 }}
                 transition={{ duration: 0.15 }}
-                className="min-w-0"
+                className="min-w-0 flex-1"
               >
-                <h1 className="text-sm font-bold text-slate-900 dark:text-zinc-100 tracking-tight truncate">
+                <h1 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight truncate">
                   Kids'Med IA
                 </h1>
-                <Badge variant="outline" className={cn('text-[9px] px-1.5 py-0 border leading-none uppercase font-mono mt-0.5', theme.badgeClass)}>
-                  {theme.label}
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    'text-[9px] px-1.5 py-0 border leading-none uppercase font-mono mt-0.5',
+                    roleTheme.badgeBg,
+                    roleTheme.badgeText,
+                    roleTheme.badgeBorder
+                  )}
+                >
+                  {roleTheme.label}
                 </Badge>
               </motion.div>
             )}
@@ -275,35 +245,33 @@ export const SidebarV2: React.FC<SidebarV2Props> = ({ collapsed, setCollapsed })
         </div>
       </div>
 
-{/* Profile Utilisateur */}
-{!collapsed && (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ delay: 0.05 }}
-    className="p-3 border-b border-slate-100 dark:border-zinc-800/80"
-  >
-    <div className="flex items-center gap-2.5 p-2 rounded-xl bg-slate-50/80 dark:bg-zinc-800/40 border border-slate-100 dark:border-zinc-800/80">
-      <Avatar className="h-8 w-8 shrink-0">
-        <AvatarFallback className={cn('font-semibold text-xs', theme.avatarBg)}>
-          {/* Correction sécurisée ici 👇 */}
-          {user?.prenom?.[0] || user?.nom?.[0] || 'U'}
-        </AvatarFallback>
-      </Avatar>
-      <div className="flex-1 min-w-0">
-        <p className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate">
-          {user?.prenom ? `${user.prenom} ${user.nom || ''}` : (user?.nom || 'Utilisateur')}
-        </p>
-        <div className="flex items-center gap-1.5 mt-0.5">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium truncate">MFA Actif · HDS</span>
+      {/* Profil Utilisateur */}
+      {!isCollapsed && (
+        <div className="p-3 border-b border-slate-200 dark:border-zinc-800">
+          <div className="flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200/60 dark:border-zinc-700/60">
+            <Avatar className="h-8 w-8 shrink-0">
+              <AvatarFallback className={cn('font-semibold text-xs text-white', roleTheme.bg)}>
+                {user?.profile?.prenom?.[0] || user?.profile?.nom?.[0] || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                {user?.profile?.prenom
+                  ? `${user.profile.prenom} ${user.profile.nom || ''}`
+                  : user?.profile?.nom || 'Utilisateur'}
+              </p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium truncate">
+                  Actif · HDS
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </motion.div>
-)}
+      )}
 
-      {/* Menu Principal de Navigation */}
+      {/* Menu Principal de Navigation (Corrigé pour forcer la visibilité de la page active) */}
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-1">
         {menuItems.map((item) => (
           <div
@@ -315,37 +283,43 @@ export const SidebarV2: React.FC<SidebarV2Props> = ({ collapsed, setCollapsed })
             <NavLink
               to={item.path}
               end={item.path === `/${user.role}`}
+              onClick={handleMobileNavClick}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all group relative overflow-hidden',
+                  'flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all group relative',
                   isActive
-                    ? theme.activeItem
-                    : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50 hover:text-slate-900 dark:hover:text-zinc-100',
-                  collapsed && 'justify-center px-0'
+                    ? cn(roleTheme.activeBg, roleTheme.activeText, 'font-bold shadow-xs')
+                    : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white',
+                  isCollapsed && 'justify-center px-0'
                 )
               }
             >
               {({ isActive }) => (
                 <>
-                  {/* Indicateur vertical gauche style Linear/Vercel pour l'élément actif */}
                   {isActive && (
-                    <div className={cn('absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full', theme.activeIndicator)} />
+                    <div
+                      className={cn('absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full', roleTheme.activeIndicator || roleTheme.bg)}
+                    />
                   )}
 
-                  <span className={cn(
-                    'shrink-0 transition-colors',
-                    isActive ? 'opacity-100 text-slate-900 dark:text-white' : 'text-slate-400 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-300'
-                  )}>
+                  <span
+                    className={cn(
+                      'shrink-0 transition-colors',
+                      isActive
+                        ? 'text-slate-900 dark:text-white font-bold'
+                        : 'text-slate-400 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-300'
+                    )}
+                  >
                     {item.icon}
                   </span>
 
                   <AnimatePresence>
-                    {!collapsed && (
+                    {!isCollapsed && (
                       <motion.span
-                        initial={{ opacity: 0, x: -6 }}
+                        initial={{ opacity: 0, x: -4 }}
                         animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -6 }}
-                        transition={{ duration: 0.15 }}
+                        exit={{ opacity: 0, x: -4 }}
+                        transition={{ duration: 0.1 }}
                         className="flex-1 truncate"
                       >
                         {item.label}
@@ -353,28 +327,30 @@ export const SidebarV2: React.FC<SidebarV2Props> = ({ collapsed, setCollapsed })
                     )}
                   </AnimatePresence>
 
-                  {item.badge && !collapsed && (
-                    <span className={cn(
-                      'ml-auto text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md text-white shadow-xs',
-                      theme.badgeDot
-                    )}>
+                  {item.badge && !isCollapsed && (
+                    <span
+                      className={cn(
+                        'ml-auto text-[10px] font-mono font-bold px-2 py-0.5 rounded-md text-white shadow-xs',
+                        roleTheme.bg
+                      )}
+                    >
                       {item.badge}
                     </span>
                   )}
 
-                  {item.badge && collapsed && (
-                    <span className={cn('absolute top-2 right-3 h-2 w-2 rounded-full', theme.badgeDot)} />
+                  {item.badge && isCollapsed && (
+                    <span className={cn('absolute top-2 right-3 h-2 w-2 rounded-full', roleTheme.bg)} />
                   )}
                 </>
               )}
             </NavLink>
 
-            {/* Tooltip flottant ultra-pro si la sidebar est repliée */}
-            {collapsed && hoveredId === item.id && (
-              <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50 px-3 py-1.5 bg-slate-900 dark:bg-zinc-800 text-white text-xs font-medium rounded-lg shadow-xl whitespace-nowrap pointer-events-none flex items-center gap-2">
+            {/* Tooltip si sidebar repliée */}
+            {isCollapsed && hoveredId === item.id && (
+              <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50 px-3 py-1.5 bg-slate-900 text-white text-xs font-medium rounded-lg shadow-xl whitespace-nowrap pointer-events-none flex items-center gap-2">
                 <span>{item.label}</span>
                 {item.badge && (
-                  <span className={cn('text-[9px] font-mono px-1.5 py-0.2 rounded text-white', theme.badgeDot)}>
+                  <span className={cn('text-[9px] font-mono px-1.5 py-0.2 rounded text-white', roleTheme.bg)}>
                     {item.badge}
                   </span>
                 )}
@@ -384,42 +360,64 @@ export const SidebarV2: React.FC<SidebarV2Props> = ({ collapsed, setCollapsed })
         ))}
       </nav>
 
-      {/* Section Basse : Paramètres & Déconnexion */}
-      <div className="p-2 border-t border-slate-100 dark:border-zinc-800/80 space-y-1">
+      {/* Section Basse : Toggle Thème, Paramètres & Déconnexion */}
+      <div className="p-2 border-t border-slate-200 dark:border-zinc-800 space-y-1">
+        <button
+          onClick={toggleTheme}
+          className={cn(
+            'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all group relative',
+            'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white',
+            isCollapsed && 'justify-center px-0'
+          )}
+          title={theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}
+        >
+          {theme === 'dark' ? (
+            <IoSunnyOutline size={18} className="shrink-0 text-amber-500" />
+          ) : (
+            <IoMoonOutline size={18} className="shrink-0 text-slate-600" />
+          )}
+          {!isCollapsed && (
+            <span className="flex-1 truncate text-left">
+              {theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
+            </span>
+          )}
+        </button>
+
         <NavLink
           to={`/${user.role}/parametres`}
+          onClick={handleMobileNavClick}
           className={({ isActive }) =>
             cn(
               'flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all group relative',
               isActive
-                ? theme.activeItem
-                : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50 hover:text-slate-900 dark:hover:text-zinc-100',
-              collapsed && 'justify-center px-0'
+                ? cn(roleTheme.activeBg, roleTheme.activeText, 'font-bold shadow-xs')
+                : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white',
+              isCollapsed && 'justify-center px-0'
             )
           }
         >
-          <IoSettingsOutline size={18} className="shrink-0 text-slate-400 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-300" />
-          {!collapsed && (
-            <span className="flex-1 truncate">Paramètres du compte</span>
-          )}
+          <IoSettingsOutline
+            size={18}
+            className="shrink-0 text-slate-400 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-300"
+          />
+          {!isCollapsed && <span className="flex-1 truncate">Paramètres du compte</span>}
         </NavLink>
 
-        {/* Bouton de Déconnexion */}
         <button
           onClick={logout}
           className={cn(
             'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors',
-            collapsed && 'justify-center px-0'
+            isCollapsed && 'justify-center px-0'
           )}
         >
           <IoLogOutOutline size={18} className="shrink-0" />
-          {!collapsed && <span>Déconnexion</span>}
+          {!isCollapsed && <span>Déconnexion</span>}
         </button>
       </div>
 
       {/* Footer Version */}
-      {!collapsed && (
-        <div className="p-3 text-center bg-slate-50/50 dark:bg-zinc-900/50 border-t border-slate-100 dark:border-zinc-800">
+      {!isCollapsed && (
+        <div className="p-3 text-center bg-slate-50 dark:bg-zinc-900/50 border-t border-slate-200 dark:border-zinc-800">
           <p className="text-[10px] font-mono text-slate-400 dark:text-zinc-500">
             Kids'Med IA · v2.6 RGPD/HDS
           </p>

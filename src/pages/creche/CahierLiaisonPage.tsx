@@ -23,6 +23,7 @@ import { fr } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
 import { transmissionApi, enfantApi } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
+import { AppBackground } from '@/components/AppBackground';
 
 const DEFAULT_ETABLISSEMENT_ID = 'test-creche-001';
 
@@ -44,6 +45,19 @@ interface Transmission {
 
 export const CahierLiaisonPage: React.FC = () => {
   const { user } = useAuth();
+
+  // Role detection for theming
+  const isCreche = user?.role === 'creche' || user?.role === 'professionnel';
+  const isMedecin = user?.role === 'medecin';
+  const isAuxiliaire = user?.role === 'auxiliaire' || user?.role === 'professionnel_puericulture';
+
+  // Dynamic theme based on role
+  const roleTheme = isCreche
+    ? { primary: 'lime', hex: '#8BC34A', light: 'lime-50', dark: 'lime-950', border: 'lime-200', text: 'lime-600', darkText: 'lime-400' }
+    : isMedecin
+    ? { primary: 'cyan', hex: '#0099FF', light: 'cyan-50', dark: 'cyan-950', border: 'cyan-200', text: 'cyan-600', darkText: 'cyan-400' }
+    : { primary: 'teal', hex: '#14B8A6', light: 'teal-50', dark: 'teal-950', border: 'teal-200', text: 'teal-600', darkText: 'teal-400' };
+
   const [transmissions, setTransmissions] = useState<Transmission[]>([]);
   const [enfants, setEnfants] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -221,163 +235,188 @@ export const CahierLiaisonPage: React.FC = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="p-16 text-center space-y-4 max-w-md mx-auto mt-20">
-        <IoReloadOutline className="h-12 w-12 text-sky-500 mx-auto animate-spin" />
-        <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">
-          Chargement des transmissions...
-        </p>
-      </div>
+      <AppBackground>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center space-y-4">
+            <IoReloadOutline className={`h-12 w-12 mx-auto animate-spin ${isCreche ? 'text-lime-600' : isMedecin ? 'text-cyan-600' : 'text-teal-600'}`} />
+            <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">
+              Chargement des transmissions...
+            </p>
+          </div>
+        </div>
+      </AppBackground>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <div className="p-16 text-center space-y-4 max-w-md mx-auto mt-20">
-        <IoAlertCircleOutline className="h-12 w-12 text-rose-500 mx-auto" />
-        <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">
-          Erreur de chargement
-        </p>
-        <p className="text-xs text-slate-500 dark:text-zinc-400">{error}</p>
-        <Button onClick={loadData}>
-          <IoReloadOutline className="h-4 w-4 mr-2" />
-          Réessayer
-        </Button>
-      </div>
+      <AppBackground>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center space-y-4 max-w-md">
+            <IoAlertCircleOutline className="h-12 w-12 text-rose-500 mx-auto" />
+            <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">Erreur de chargement</p>
+            <p className="text-xs text-slate-500 dark:text-zinc-400">{error}</p>
+            <Button
+              size="sm"
+              onClick={loadData}
+              className={`${isCreche ? 'bg-lime-700 hover:bg-lime-600' : isMedecin ? 'bg-cyan-700 hover:bg-cyan-600' : 'bg-teal-700 hover:bg-teal-600'}`}
+            >
+              <IoReloadOutline className="h-4 w-4 mr-2" />
+              Réessayer
+            </Button>
+          </div>
+        </div>
+      </AppBackground>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="p-4 sm:p-8 space-y-8 bg-gradient-to-br from-slate-50 via-sky-50/20 to-indigo-50/20 dark:from-zinc-950 dark:via-zinc-900/50 dark:to-zinc-950 min-h-screen text-slate-900 dark:text-zinc-100 font-sans antialiased"
-    >
-      
-      {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800 pb-5">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight">Cahier de Liaison Sanitaire</h1>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-400 border border-sky-200 dark:border-sky-800 shadow-xs">
-              <IoShieldCheckmarkOutline className="h-3.5 w-3.5" />
-              Transmissions HDS
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
-            Suivi quotidien horodaté et sécurisé entre l'équipe éducative, la direction, le RSAI et les familles.
-          </p>
-        </div>
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
 
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          className="h-10 text-xs font-bold rounded-2xl bg-sky-600 hover:bg-sky-700 text-white transition-all shadow-md cursor-pointer"
-        >
-          <IoAddOutline className="h-4 w-4 mr-1.5" />
-          Nouvelle Transmission
-        </Button>
-      </div>
-
-      {/* KPI Stats Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-        
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-4 text-center">
-            <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Total Transmissions</p>
-            <p className="text-2xl font-black text-slate-900 dark:text-zinc-100 mt-1">{stats.total}</p>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-4 text-center">
-            <p className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Repas</p>
-            <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
-              {stats.repas}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-4 text-center">
-            <p className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Siestes</p>
-            <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">
-              {stats.sieste}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-4 text-center">
-            <p className="text-[10px] font-extrabold uppercase tracking-wider text-amber-600 dark:text-amber-400">Soins</p>
-            <p className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">
-              {stats.soin}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md col-span-2 sm:col-span-1">
-          <CardContent className="p-4 text-center">
-            <p className="text-[10px] font-extrabold uppercase tracking-wider text-rose-600 dark:text-rose-400">Incidents</p>
-            <p className="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">
-              {stats.incident}
-            </p>
-          </CardContent>
-        </Card>
-
-      </div>
-
-      {/* Main Card List Section */}
-      <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md overflow-hidden">
-        
-        {/* Header & Filter Controls */}
-        <div className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="relative w-full md:w-80">
-            <IoSearchOutline className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Rechercher par enfant, soignant..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-xs font-medium bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 rounded-2xl focus:outline-none focus:border-sky-500 transition-all shadow-xs"
-            />
-          </div>
-
-          {/* Filtres par catégorie */}
-          <div className="flex flex-wrap items-center gap-1.5 w-full md:w-auto bg-slate-100 dark:bg-zinc-800 p-1 rounded-2xl border border-slate-200/80 dark:border-zinc-700">
-            {['all', 'repas', 'sieste', 'soin', 'incident', 'observation'].map((t) => (
-              <button
-                key={t}
-                onClick={() => setFilterType(t)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold capitalize transition-all cursor-pointer ${
-                  filterType === t
-                    ? 'bg-sky-600 text-white shadow-xs'
-                    : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900'
-                }`}
+        {/* Top Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800 pb-5">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight">Cahier de Liaison Sanitaire</h1>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold shadow-xs"
+                style={{
+                  backgroundColor: `color-mix(in srgb, ${roleTheme.hex} 10%, transparent)`,
+                  borderColor: `color-mix(in srgb, ${roleTheme.hex} 30%, transparent)`,
+                  color: roleTheme.hex,
+                  border: '1px solid'
+                }}
               >
-                {t === 'all' ? 'Toutes' : t}
-              </button>
-            ))}
+                <IoShieldCheckmarkOutline className="h-3.5 w-3.5" />
+                Transmissions HDS
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+              Suivi quotidien horodaté et sécurisé entre l'équipe éducative, la direction, le RSAI et les familles.
+            </p>
           </div>
+
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            className="h-10 text-xs font-bold rounded-2xl text-white transition-all cursor-pointer"
+            style={{ backgroundColor: roleTheme.hex }}
+          >
+            <IoAddOutline className="h-4 w-4 mr-1.5" />
+            Nouvelle Transmission
+          </Button>
         </div>
+
+        {/* KPI Stats Row */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+
+          <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-l-4"
+            style={{ borderLeftColor: roleTheme.hex }}
+          >
+            <CardContent className="p-4 text-center">
+              <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Total Transmissions</p>
+              <p className="text-2xl font-black text-slate-900 dark:text-zinc-100 mt-1">{stats.total}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-l-4 border-l-emerald-500">
+            <CardContent className="p-4 text-center">
+              <p className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Repas</p>
+              <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
+                {stats.repas}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-l-4 border-l-indigo-500">
+            <CardContent className="p-4 text-center">
+              <p className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Siestes</p>
+              <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">
+                {stats.sieste}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-l-4 border-l-amber-500">
+            <CardContent className="p-4 text-center">
+              <p className="text-[10px] font-extrabold uppercase tracking-wider text-amber-600 dark:text-amber-400">Soins</p>
+              <p className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">
+                {stats.soin}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md col-span-2 sm:col-span-1 border-l-4 border-l-rose-500">
+            <CardContent className="p-4 text-center">
+              <p className="text-[10px] font-extrabold uppercase tracking-wider text-rose-600 dark:text-rose-400">Incidents</p>
+              <p className="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">
+                {stats.incident}
+              </p>
+            </CardContent>
+          </Card>
+
+        </div>
+
+        {/* Main Card List Section */}
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md overflow-hidden">
+        
+          {/* Header & Filter Controls */}
+          <div className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="relative w-full md:w-80">
+              <IoSearchOutline className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Rechercher par enfant, soignant..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 text-xs font-medium bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 rounded-2xl focus:outline-none transition-all"
+                style={{
+                  borderColor: searchTerm ? roleTheme.hex : undefined
+                }}
+              />
+            </div>
+
+            {/* Filtres par catégorie */}
+            <div className="flex flex-wrap items-center gap-1.5 w-full md:w-auto bg-slate-100 dark:bg-zinc-800 p-1 rounded-2xl border border-slate-200/80 dark:border-zinc-700">
+              {['all', 'repas', 'sieste', 'soin', 'incident', 'observation'].map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setFilterType(t)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold capitalize transition-all cursor-pointer ${
+                    filterType === t
+                      ? 'text-white shadow-xs'
+                      : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900'
+                  }`}
+                  style={filterType === t ? { backgroundColor: roleTheme.hex } : {}}
+                >
+                  {t === 'all' ? 'Toutes' : t}
+                </button>
+              ))}
+            </div>
+          </div>
 
         <CardContent className="p-5 space-y-4">
           
-          {/* Liste des transmissions */}
-          <div className="space-y-3">
-            {filteredTransmissions.length === 0 ? (
-              <div className="text-center py-12 border border-dashed rounded-3xl border-slate-200 dark:border-zinc-800">
-                <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">Aucune transmission ne correspond à votre filtre.</p>
-              </div>
-            ) : (
-              filteredTransmissions.map((trans) => (
-                <div
-                  key={trans.id}
-                  className="p-4 rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/30 hover:bg-slate-50 dark:hover:bg-zinc-800/60 transition-all flex gap-4 items-start shadow-xs"
-                >
-                  <div className="p-3 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs shrink-0 mt-0.5">
-                    {getTypeIcon(trans.type)}
-                  </div>
+            {/* Liste des transmissions */}
+            <div className="space-y-3">
+              {filteredTransmissions.length === 0 ? (
+                <div className="text-center py-12 border border-dashed rounded-xl border-slate-200 dark:border-zinc-800">
+                  <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">Aucune transmission ne correspond à votre filtre.</p>
+                </div>
+              ) : (
+                filteredTransmissions.map((trans) => (
+                  <div
+                    key={trans.id}
+                    className="p-4 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/30 hover:bg-slate-50 dark:hover:bg-zinc-800/60 transition-all flex gap-4 items-start"
+                  >
+                    <div className="p-3 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shrink-0 mt-0.5">
+                      {getTypeIcon(trans.type)}
+                    </div>
 
                   <div className="flex-1 space-y-2 min-w-0">
                     <div className="flex flex-wrap items-center justify-between gap-2">
@@ -429,44 +468,62 @@ export const CahierLiaisonPage: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Note d'information réglementaire */}
-      <div className="p-6 rounded-3xl bg-sky-500/10 dark:bg-sky-950/20 border border-sky-500/20 flex items-start gap-4">
-        <div className="p-3 rounded-2xl bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 shrink-0">
-          <IoDocumentTextOutline className="h-6 w-6" />
+        {/* Note d'information réglementaire */}
+        <div className="p-6 rounded-xl border flex items-start gap-4"
+          style={{
+            backgroundColor: `color-mix(in srgb, ${roleTheme.hex} 10%, transparent)`,
+            borderColor: `color-mix(in srgb, ${roleTheme.hex} 20%, transparent)`
+          }}
+        >
+          <div className="p-3 rounded-2xl border shrink-0"
+            style={{
+              backgroundColor: `color-mix(in srgb, ${roleTheme.hex} 10%, transparent)`,
+              borderColor: `color-mix(in srgb, ${roleTheme.hex} 20%, transparent)`,
+              color: roleTheme.hex
+            }}
+          >
+            <IoDocumentTextOutline className="h-6 w-6" />
+          </div>
+          <div className="space-y-1">
+            <h4 className="text-sm font-extrabold tracking-tight text-slate-900 dark:text-zinc-100">Cahier de Liaison Numérique Réglementaire</h4>
+            <p className="text-xs text-slate-700 dark:text-zinc-300 font-medium leading-relaxed">
+              Ce journal remplace le registre papier. Toutes les saisies sont horodatées de manière infalsifiable, signées par l'agent émetteur et archivées selon la norme HDS (Hébergement de Données de Santé).
+            </p>
+          </div>
         </div>
-        <div className="space-y-1">
-          <h4 className="text-sm font-extrabold tracking-tight text-sky-900 dark:text-sky-200">Cahier de Liaison Numérique Réglementaire</h4>
-          <p className="text-xs text-sky-800/90 dark:text-sky-300/90 font-medium leading-relaxed">
-            Ce journal remplace le registre papier. Toutes les saisies sont horodatées de manière infalsifiable, signées par l'agent émetteur et archivées selon la norme HDS (Hébergement de Données de Santé).
-          </p>
-        </div>
-      </div>
 
-      {/* Modal Nouvelle Transmission */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden"
-            >
-              
-              <div className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-sky-50 dark:bg-sky-950/50 text-sky-600 border border-sky-200 dark:border-sky-800">
-                    <IoDocumentTextOutline className="h-5 w-5" />
+        {/* Modal Nouvelle Transmission */}
+        <AnimatePresence>
+          {isModalOpen && (
+            <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl max-w-lg w-full shadow-2xl overflow-hidden"
+              >
+
+
+                <div className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 rounded-xl border"
+                      style={{
+                        backgroundColor: `color-mix(in srgb, ${roleTheme.hex} 10%, transparent)`,
+                        borderColor: `color-mix(in srgb, ${roleTheme.hex} 30%, transparent)`,
+                        color: roleTheme.hex
+                      }}
+                    >
+                      <IoDocumentTextOutline className="h-5 w-5" />
+                    </div>
+                    <h3 className="text-sm font-black tracking-tight">Ajouter une Transmission Sanitaire</h3>
                   </div>
-                  <h3 className="text-sm font-black tracking-tight">Ajouter une Transmission Sanitaire</h3>
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                  >
+                    <IoCloseOutline className="h-5 w-5" />
+                  </button>
                 </div>
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                >
-                  <IoCloseOutline className="h-5 w-5" />
-                </button>
-              </div>
 
               <form onSubmit={handleCreateTransmission} className="p-6 space-y-4">
                 
@@ -547,29 +604,51 @@ export const CahierLiaisonPage: React.FC = () => {
                   </select>
                 </div>
 
-                <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-200/80 dark:border-zinc-800">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsModalOpen(false)}
-                    className="h-10 text-xs font-bold rounded-2xl border-slate-200 dark:border-zinc-700 cursor-pointer"
-                  >
-                    Annuler
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="h-10 text-xs font-bold rounded-2xl bg-sky-600 hover:bg-sky-700 text-white cursor-pointer shadow-md"
-                  >
-                    Publier la Transmission
-                  </Button>
-                </div>
+                  <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-200/80 dark:border-zinc-800">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsModalOpen(false)}
+                      className="h-10 text-xs font-bold rounded-2xl border-slate-200 dark:border-zinc-700 cursor-pointer"
+                    >
+                      Annuler
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="h-10 text-xs font-bold rounded-2xl text-white cursor-pointer"
+                      style={{ backgroundColor: roleTheme.hex }}
+                    >
+                      Publier la Transmission
+                    </Button>
+                  </div>
 
-              </form>
-            </motion.div>
+                </form>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Professional Footer */}
+        <footer className="mt-16 pt-8 border-t border-slate-200/80 dark:border-zinc-800">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+              <span className="font-bold" style={{ color: roleTheme.hex }}>Kids'Med IA</span>
+              <span>•</span>
+              <span>© 2026 Tous droits réservés</span>
+            </div>
+            <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-zinc-400">
+              <a href="#" className="hover:text-slate-700 dark:hover:text-zinc-200 transition-colors font-medium">
+                Centre d'aide
+              </a>
+              <span>•</span>
+              <a href="#" className="hover:text-slate-700 dark:hover:text-zinc-200 transition-colors font-medium">
+                Documentation
+              </a>
+            </div>
           </div>
-        )}
-      </AnimatePresence>
+        </footer>
 
-    </motion.div>
+      </motion.div>
+    </AppBackground>
   );
 };

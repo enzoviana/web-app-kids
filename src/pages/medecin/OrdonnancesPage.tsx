@@ -10,6 +10,7 @@ import {
   IoMedicalOutline,
   IoCloseOutline,
   IoCalendarOutline,
+  IoSparkles,
 } from 'react-icons/io5';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,8 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { ordonnanceApi, enfantApi } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
+import { AppBackground } from '@/components/AppBackground';
+import { motion } from 'framer-motion';
 
 interface PrescriptionMedicament {
   nom: string;
@@ -263,17 +266,25 @@ export const OrdonnancesPage: React.FC = () => {
   // Loading state
   if (loading && ordonnances.length === 0) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600 mx-auto mb-4"></div>
-          <p className="text-sm text-slate-600 dark:text-zinc-400">Chargement des ordonnances...</p>
+      <AppBackground>
+        <div className="max-w-6xl mx-auto p-6 md:p-10 flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600 dark:border-cyan-400 mx-auto mb-4"></div>
+            <p className="text-sm text-slate-600 dark:text-zinc-400">Chargement des ordonnances...</p>
+          </div>
         </div>
-      </div>
+      </AppBackground>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6 font-sans antialiased text-slate-900 dark:text-zinc-100">
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
 
       {/* Error Alert */}
       {error && (
@@ -293,23 +304,22 @@ export const OrdonnancesPage: React.FC = () => {
       )}
 
       {/* Top Bar Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold tracking-tight">Gestionnaire de Prescriptions & Ordonnances</h1>
-            <Badge variant="outline" className="bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/40 dark:text-sky-300 font-mono text-[10px]">
-              Espace Médecin & RSAI
-            </Badge>
-          </div>
-          <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-            Édition réglementaire, suivi des traitements et autorisations d'administration en crèche
-          </p>
+      <div className="border-b border-slate-200/80 dark:border-zinc-800 pb-5">
+        <div className="flex items-center gap-2.5 mb-2">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight">Gestionnaire de Prescriptions & Ordonnances</h1>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800 shadow-xs">
+            <IoSparkles className="h-3.5 w-3.5" />
+            Médecin
+          </span>
         </div>
+        <p className="text-xs text-slate-500 dark:text-zinc-400 mb-3">
+          Édition réglementaire, suivi des traitements et autorisations d'administration en crèche
+        </p>
 
         <Button
           onClick={() => setIsModalOpen(true)}
           disabled={loading}
-          className="bg-sky-600 hover:bg-sky-700 text-white h-9 text-xs font-semibold shrink-0 disabled:opacity-50"
+          className="bg-cyan-600 hover:bg-cyan-700 text-white h-9 text-xs font-semibold shrink-0 disabled:opacity-50"
         >
           <IoAddOutline className="h-4 w-4 mr-1.5" />
           Rédiger une Ordonnance
@@ -319,7 +329,7 @@ export const OrdonnancesPage: React.FC = () => {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         
-        <Card className="shadow-none border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold text-slate-500 dark:text-zinc-400">Prescriptions Actives</p>
@@ -331,7 +341,7 @@ export const OrdonnancesPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-none border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold text-slate-500 dark:text-zinc-400">À Renouveler / Expire</p>
@@ -343,7 +353,7 @@ export const OrdonnancesPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-none border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold text-slate-500 dark:text-zinc-400">Total ce mois</p>
@@ -355,7 +365,7 @@ export const OrdonnancesPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-none border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold text-slate-500 dark:text-zinc-400">Conformité HDS</p>
@@ -369,7 +379,7 @@ export const OrdonnancesPage: React.FC = () => {
       </div>
 
       {/* Main Table Card */}
-      <Card className="shadow-none border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+      <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
         <CardHeader className="p-4 border-b border-slate-100 dark:border-zinc-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
             <CardTitle className="text-sm font-bold">Registre des Ordonnances Médicales</CardTitle>
@@ -425,7 +435,7 @@ export const OrdonnancesPage: React.FC = () => {
               placeholder="Rechercher par enfant ou n° ordonnance..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-md bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 focus:outline-none focus:ring-1 focus:ring-sky-500"
+              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-md bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 focus:outline-none focus:ring-1 focus:ring-cyan-500"
             />
           </div>
 
@@ -453,7 +463,7 @@ export const OrdonnancesPage: React.FC = () => {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Avatar className="h-7 w-7">
-                          <AvatarFallback className="bg-sky-100 text-sky-800 text-[10px] font-bold">
+                          <AvatarFallback className="bg-cyan-100 text-cyan-800 text-[10px] font-bold">
                             {ord.enfant.prenom[0]}
                           </AvatarFallback>
                         </Avatar>
@@ -533,7 +543,7 @@ export const OrdonnancesPage: React.FC = () => {
             
             <div className="p-4 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50">
               <div className="flex items-center gap-2">
-                <IoMedicalOutline className="h-5 w-5 text-sky-600" />
+                <IoMedicalOutline className="h-5 w-5 text-cyan-600" />
                 <h3 className="text-sm font-bold">Nouvelle Ordonnance Médicale</h3>
               </div>
               <button
@@ -554,7 +564,7 @@ export const OrdonnancesPage: React.FC = () => {
                 <select
                   value={selectedEnfantId}
                   onChange={(e) => setSelectedEnfantId(e.target.value)}
-                  className="w-full p-2 text-xs rounded-md bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                  className="w-full p-2 text-xs rounded-md bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 focus:outline-none focus:ring-1 focus:ring-cyan-500"
                   required
                 >
                   {enfants.length === 0 ? (
@@ -622,7 +632,7 @@ export const OrdonnancesPage: React.FC = () => {
               </div>
 
               {/* Engagement et validation */}
-              <div className="p-3 bg-sky-50/50 dark:bg-sky-950/20 rounded-lg border border-sky-200/50 dark:border-sky-900/40 text-[11px] text-sky-800 dark:text-sky-300 flex items-start gap-2">
+              <div className="p-3 bg-cyan-50/50 dark:bg-cyan-950/20 rounded-lg border border-cyan-200/50 dark:border-cyan-900/40 text-[11px] text-cyan-800 dark:text-cyan-300 flex items-start gap-2">
                 <IoCheckmarkCircleOutline className="h-4 w-4 shrink-0 mt-0.5" />
                 <span>Cette ordonnance vaut autorisation d'administration pour l'équipe encadrante de la crèche.</span>
               </div>
@@ -640,7 +650,7 @@ export const OrdonnancesPage: React.FC = () => {
                 <Button
                   type="submit"
                   disabled={loading || enfants.length === 0}
-                  className="h-8 text-xs bg-sky-600 hover:bg-sky-700 text-white font-semibold disabled:opacity-50"
+                  className="h-8 text-xs bg-cyan-600 hover:bg-cyan-700 text-white font-semibold disabled:opacity-50"
                 >
                   {loading ? 'Création en cours...' : 'Signer & Délivrer l\'ordonnance'}
                 </Button>
@@ -651,6 +661,22 @@ export const OrdonnancesPage: React.FC = () => {
         </div>
       )}
 
-    </div>
+      {/* Footer */}
+      <footer className="mt-16 pt-8 border-t border-slate-200/80 dark:border-zinc-800">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+            <span className="font-bold text-cyan-600 dark:text-cyan-400">Kids'Med IA</span>
+            <span>•</span>
+            <span>© 2026 Tous droits réservés</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-zinc-400">
+            <a href="#" className="hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">Aide</a>
+            <a href="#" className="hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">Confidentialité</a>
+            <a href="#" className="hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">CGU</a>
+          </div>
+        </div>
+      </footer>
+      </motion.div>
+    </AppBackground>
   );
 };

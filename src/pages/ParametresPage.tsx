@@ -11,6 +11,8 @@ import {
   IoCheckmarkCircleOutline,
   IoCloseOutline,
   IoLockClosedOutline,
+  IoReloadOutline,
+  IoSettingsOutline,
 } from 'react-icons/io5';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,6 +22,8 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/hooks/useAuth';
 import { userApi, authApi } from '@/services/api';
+import { AppBackground } from '@/components/AppBackground';
+import { motion } from 'framer-motion';
 
 interface Profile {
   prenom: string;
@@ -38,6 +42,18 @@ interface Profile {
 
 export const ParametresPage: React.FC = () => {
   const { user } = useAuth();
+
+  // Détection du rôle pour les couleurs
+  const isRSAI = user?.role === 'rsai' || user?.role === 'professionnel_rsai';
+  const isCreche = user?.role === 'creche' || user?.role === 'professionnel';
+  const isMedecin = user?.role === 'medecin';
+
+  // Thème de couleur basé sur le rôle
+  const roleTheme = isRSAI
+    ? { primary: 'fuchsia', hex: '#FF007A', light: 'fuchsia-50', dark: 'fuchsia-950', border: 'fuchsia-200', text: 'fuchsia-600', darkText: 'fuchsia-400' }
+    : isCreche
+    ? { primary: 'lime', hex: '#8BC34A', light: 'lime-50', dark: 'lime-950', border: 'lime-200', text: 'lime-600', darkText: 'lime-400' }
+    : { primary: 'cyan', hex: '#0099FF', light: 'cyan-50', dark: 'cyan-950', border: 'cyan-200', text: 'cyan-600', darkText: 'cyan-400' };
 
   // États principaux
   const [loading, setLoading] = useState(true);
@@ -169,78 +185,87 @@ export const ParametresPage: React.FC = () => {
   // État de chargement
   if (loading) {
     return (
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6 font-sans antialiased text-slate-900 dark:text-zinc-100 min-h-screen">
-        <div className="flex items-center justify-center py-12">
+      <AppBackground>
+        <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600 mx-auto"></div>
-            <p className="mt-4 text-sm text-slate-500 dark:text-zinc-400">Chargement du profil...</p>
+            <IoReloadOutline className={`h-12 w-12 ${isRSAI ? 'text-fuchsia-600' : isCreche ? 'text-lime-600' : 'text-cyan-600'} mx-auto mb-3 animate-spin`} />
+            <p className="text-sm font-medium text-slate-600 dark:text-zinc-400">Chargement du profil...</p>
           </div>
         </div>
-      </div>
+      </AppBackground>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6 font-sans antialiased text-slate-900 dark:text-zinc-100 min-h-screen">
-
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-zinc-100">
-            Paramètres du Compte
-          </h1>
-          <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
-            Gérez vos informations personnelles, préférences de notifications et sécurité HDS
-          </p>
-        </div>
-
-        {isSaved && (
-          <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-none font-semibold text-xs py-1.5 px-3">
-            <IoCheckmarkCircleOutline className="mr-1.5 h-4 w-4" /> Modifications enregistrées
-          </Badge>
-        )}
-      </div>
-
-      {/* Message d'erreur */}
-      {error && (
-        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4">
-          <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
-        </div>
-      )}
-
-      {/* Section Profil */}
-      <Card className="shadow-none border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-        <CardHeader className="p-4 border-b border-slate-100 dark:border-zinc-800/80">
-          <div className="flex items-center justify-between">
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800 pb-5">
+          <div>
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-lg bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 border border-sky-200/60 dark:border-sky-800/60">
-                <IoShieldCheckmarkOutline className="h-5 w-5" />
-              </div>
-              <div>
-                <CardTitle className="text-sm font-bold">Profil Utilisateur</CardTitle>
-                <CardDescription className="text-xs text-slate-500 dark:text-zinc-400">
-                  Renseignements d'identité et rôle sur l'établissement
-                </CardDescription>
-              </div>
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight">Paramètres du Compte</h1>
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-${roleTheme.light} dark:bg-${roleTheme.dark}/50 text-${roleTheme.text} dark:text-${roleTheme.darkText} border border-${roleTheme.border} dark:border-${roleTheme.text}/20`}>
+                <IoSettingsOutline className="h-3.5 w-3.5" />
+                Paramètres
+              </span>
             </div>
-            {!isEditing && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 text-xs"
-                onClick={() => setIsEditing(true)}
-              >
-                <IoPencilOutline className="mr-1.5 h-3.5 w-3.5" />
-                Modifier
-              </Button>
-            )}
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+              Gérez vos informations personnelles, préférences de notifications et sécurité HDS
+            </p>
           </div>
-        </CardHeader>
+
+          {isSaved && (
+            <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 font-semibold text-xs py-1.5 px-3">
+              <IoCheckmarkCircleOutline className="mr-1.5 h-4 w-4" /> Modifications enregistrées
+            </Badge>
+          )}
+        </div>
+
+        {/* Message d'erreur */}
+        {error && (
+          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl p-4">
+            <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
+          </div>
+        )}
+
+        {/* Section Profil */}
+        <Card className="rounded-xl border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
+          <CardHeader className="p-4 sm:p-6 border-b border-slate-100 dark:border-zinc-800/80">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className={`p-2 rounded-lg border ${isRSAI ? 'bg-fuchsia-50 dark:bg-fuchsia-950/40 text-fuchsia-600 dark:text-fuchsia-400 border-fuchsia-200/60 dark:border-fuchsia-800/60' : isCreche ? 'bg-lime-50 dark:bg-lime-950/40 text-lime-600 dark:text-lime-400 border-lime-200/60 dark:border-lime-800/60' : 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-400 border-cyan-200/60 dark:border-cyan-800/60'}`}>
+                  <IoShieldCheckmarkOutline className="h-5 w-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-sm font-bold">Profil Utilisateur</CardTitle>
+                  <CardDescription className="text-xs text-slate-500 dark:text-zinc-400">
+                    Renseignements d'identité et rôle sur l'établissement
+                  </CardDescription>
+                </div>
+              </div>
+              {!isEditing && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs font-bold rounded-xl"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <IoPencilOutline className="mr-1.5 h-3.5 w-3.5" />
+                  Modifier
+                </Button>
+              )}
+            </div>
+          </CardHeader>
 
         <CardContent className="p-4 sm:p-6 space-y-6">
           <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16 border-2 border-sky-200 dark:border-sky-900">
-              <AvatarFallback className="bg-gradient-to-br from-sky-500 to-indigo-600 text-white font-bold text-xl">
+            <Avatar className={`h-16 w-16 border-2 ${isRSAI ? 'border-fuchsia-200 dark:border-fuchsia-900' : isCreche ? 'border-lime-200 dark:border-lime-900' : 'border-cyan-200 dark:border-cyan-900'}`}>
+              <AvatarFallback className={`text-white font-bold text-xl ${isRSAI ? 'bg-gradient-to-br from-fuchsia-500 to-pink-600' : isCreche ? 'bg-gradient-to-br from-lime-500 to-green-600' : 'bg-gradient-to-br from-cyan-500 to-blue-600'}`}>
                 {profile?.prenom?.[0] || user?.profile?.prenom?.[0] || 'U'}
               </AvatarFallback>
             </Avatar>
@@ -371,7 +396,7 @@ export const ParametresPage: React.FC = () => {
       </Card>
 
       {/* Section Sécurité - Changement de mot de passe */}
-      <Card className="shadow-none border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <Card className="rounded-xl border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
         <CardHeader className="p-4 border-b border-slate-100 dark:border-zinc-800/80">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -466,7 +491,7 @@ export const ParametresPage: React.FC = () => {
       </Card>
 
       {/* Section Notifications */}
-      <Card className="shadow-none border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <Card className="rounded-xl border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
         <CardHeader className="p-4 border-b border-slate-100 dark:border-zinc-800/80">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-lg bg-fuchsia-50 dark:bg-fuchsia-950/40 text-fuchsia-600 dark:text-fuchsia-400 border border-fuchsia-200/60 dark:border-fuchsia-800/60">
@@ -530,7 +555,7 @@ export const ParametresPage: React.FC = () => {
       </Card>
 
       {/* Section Préférences */}
-      <Card className="shadow-none border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <Card className="rounded-xl border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
         <CardHeader className="p-4 border-b border-slate-100 dark:border-zinc-800/80">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60">
@@ -594,7 +619,7 @@ export const ParametresPage: React.FC = () => {
           <Button
             onClick={handleSave}
             size="sm"
-            className="h-9 text-xs font-semibold bg-sky-600 hover:bg-sky-700 text-white"
+            className={`h-9 text-xs font-semibold text-white ${isRSAI ? 'bg-fuchsia-700 hover:bg-fuchsia-600' : isCreche ? 'bg-lime-700 hover:bg-lime-600' : 'bg-cyan-700 hover:bg-cyan-600'}`}
             disabled={isSaving}
           >
             <IoSaveOutline className="mr-1.5 h-4 w-4" />
@@ -603,21 +628,28 @@ export const ParametresPage: React.FC = () => {
         </div>
       )}
 
-      {/* Bouton de sauvegarde des préférences (notifications, langue, etc.) */}
-      {!isEditing && (
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <Button
-            onClick={handleSave}
-            size="sm"
-            className="h-9 text-xs font-semibold bg-sky-600 hover:bg-sky-700 text-white"
-            disabled={isSaving}
-          >
-            <IoSaveOutline className="mr-1.5 h-4 w-4" />
-            {isSaving ? 'Enregistrement...' : 'Enregistrer les préférences'}
-          </Button>
-        </div>
-      )}
+        {/* Bouton de sauvegarde des préférences (notifications, langue, etc.) */}
+        {!isEditing && (
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button
+              onClick={handleSave}
+              size="sm"
+              className={`h-9 text-xs font-semibold text-white ${isRSAI ? 'bg-fuchsia-700 hover:bg-fuchsia-600' : isCreche ? 'bg-lime-700 hover:bg-lime-600' : 'bg-cyan-700 hover:bg-cyan-600'}`}
+              disabled={isSaving}
+            >
+              <IoSaveOutline className="mr-1.5 h-4 w-4" />
+              {isSaving ? 'Enregistrement...' : 'Enregistrer les préférences'}
+            </Button>
+          </div>
+        )}
 
-    </div>
+        {/* Professional Footer */}
+        <footer className="mt-8 pt-6 border-t border-slate-200 dark:border-zinc-800 text-center">
+          <p className="text-xs text-slate-500 dark:text-zinc-500 font-medium">
+            Kids'Med IA © 2026 - Paramètres du Compte
+          </p>
+        </footer>
+      </motion.div>
+    </AppBackground>
   );
 };

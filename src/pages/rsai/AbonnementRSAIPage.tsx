@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import { AppBackground } from '@/components/AppBackground';
 
 interface PlanFeature {
   name: string;
@@ -137,24 +138,31 @@ export const AbonnementRSAIPage: React.FC = () => {
   const currentPlan = plans.find((p) => p.id === 'premium');
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="p-8 space-y-6 bg-gradient-to-br from-slate-50 via-fuchsia-50/20 to-indigo-50/20 dark:from-zinc-950 dark:via-zinc-900/50 dark:to-zinc-950 min-h-screen text-slate-900 dark:text-zinc-100 font-sans antialiased"
-    >
-      {/* Header */}
-      <div className="text-center max-w-3xl mx-auto">
-        <h1 className="text-3xl font-black tracking-tight">Abonnement RSAI</h1>
-        <p className="text-sm text-slate-500 dark:text-zinc-400 mt-2">
-          Choisissez l'offre qui correspond le mieux à vos besoins
-        </p>
-      </div>
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
+        {/* Header */}
+        <div className="text-center max-w-3xl mx-auto border-b border-slate-200/80 dark:border-zinc-800 pb-6">
+          <div className="flex items-center justify-center gap-2.5 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">Abonnement RSAI</h1>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-fuchsia-50 dark:bg-fuchsia-950/50 text-fuchsia-700 dark:text-fuchsia-400 border border-fuchsia-200 dark:border-fuchsia-800 shadow-xs">
+              <IoRocketOutline className="h-3.5 w-3.5" />
+              Gestion Abonnement
+            </span>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
+            Choisissez l'offre qui correspond le mieux à vos besoins
+          </p>
+        </div>
 
-      {/* Abonnement actuel */}
-      {currentPlan && (
-        <Card className="rounded-3xl border border-fuchsia-200 dark:border-fuchsia-800 bg-gradient-to-br from-fuchsia-50 to-fuchsia-100/50 dark:from-fuchsia-950/20 dark:to-fuchsia-900/10 backdrop-blur-xl shadow-lg">
-          <CardContent className="p-6">
+        {/* Abonnement actuel */}
+        {currentPlan && (
+          <Card className="relative rounded-xl border border-fuchsia-200 dark:border-fuchsia-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-lg border-l-4 border-l-fuchsia-500">
+            <CardContent className="p-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="h-14 w-14 rounded-2xl bg-fuchsia-100 dark:bg-fuchsia-900/60 flex items-center justify-center border-2 border-fuchsia-200 dark:border-fuchsia-800">
@@ -366,15 +374,23 @@ export const AbonnementRSAIPage: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* FAQ / Contact */}
-      <div className="text-center max-w-2xl mx-auto">
-        <p className="text-sm text-slate-600 dark:text-zinc-400">
-          Des questions sur nos offres ?{' '}
-          <button className="font-bold text-fuchsia-600 dark:text-fuchsia-400 hover:underline">
-            Contactez notre équipe commerciale
-          </button>
-        </p>
-      </div>
-    </motion.div>
+        {/* FAQ / Contact */}
+        <div className="text-center max-w-2xl mx-auto">
+          <p className="text-sm text-slate-600 dark:text-zinc-400">
+            Des questions sur nos offres ?{' '}
+            <button className="font-bold text-fuchsia-600 dark:text-fuchsia-400 hover:underline cursor-pointer">
+              Contactez notre équipe commerciale
+            </button>
+          </p>
+        </div>
+
+        {/* Professional Footer */}
+        <footer className="mt-8 pt-6 border-t border-slate-200 dark:border-zinc-800 text-center">
+          <p className="text-xs text-slate-500 dark:text-zinc-500 font-medium">
+            Kids'Med IA © 2026 - Gestion des Abonnements RSAI
+          </p>
+        </footer>
+      </motion.div>
+    </AppBackground>
   );
 };

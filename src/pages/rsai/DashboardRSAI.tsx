@@ -13,14 +13,13 @@ import {
   IoRadioButtonOnOutline,
   IoReloadOutline,
   IoPeopleOutline,
-  IoBusinessOutline,
-  IoAlertCircleOutline,
-  IoStatsChartOutline,
   IoArrowForwardOutline,
+  IoChevronBackOutline,
+  IoChevronForwardOutline,
 } from 'react-icons/io5';
+import { AppBackground } from '@/components/AppBackground';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { GeofencingStatus } from './GeofencingStatus';
@@ -39,6 +38,12 @@ export const DashboardRSAI: React.FC = () => {
   const navigate = useNavigate();
   const [isOnSite, setIsOnSite] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<'all' | 'pai' | 'allergies'>('all');
+  
+  // Pagination (Optimisé pour 20+ enfants)
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
   const [enfants, setEnfants] = useState<any[]>([]);
   const [logsSecurite, setLogsSecurite] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,7 +57,6 @@ export const DashboardRSAI: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-
       const enfantsResponse = await enfantApi.getEnfantsByEtablissement(DEFAULT_ETABLISSEMENT_ID);
       setEnfants(enfantsResponse.data || []);
 
@@ -60,333 +64,343 @@ export const DashboardRSAI: React.FC = () => {
         const logsResponse = await logApi.getLogs({ limit: 5 });
         setLogsSecurite(logsResponse.data || []);
       } catch (err) {
-        console.error('Erreur chargement logs:', err);
         setLogsSecurite([]);
       }
     } catch (err: any) {
-      console.error('Erreur chargement données RSAI:', err);
       setError(err.response?.data?.error || 'Erreur de chargement des données');
     } finally {
       setLoading(false);
     }
   };
 
-  const paiActifs = enfants.filter((e) => e.pai?.actif).length;
+  const paiActifs = enfants.filter((e) => e.pai?.actif);
   const vaccinsAJour = enfants.filter((e) => e.vaccinations && e.vaccinations.length >= 2).length;
   const complianceRate = enfants.length > 0 ? Math.round((vaccinsAJour / enfants.length) * 100) : 0;
-  const allergiesCount = enfants.filter((e) => e.allergies && e.allergies.length > 0).length;
+  const allergiesList = enfants.filter((e) => e.allergies && e.allergies.length > 0);
 
-  const filteredEnfants = enfants.filter((e) =>
-    `${e.prenom} ${e.nom}`.toLowerCase().includes(searchQuery.toLowerCase())
+  // Filtrage combiné
+  const filteredEnfants = enfants.filter((e) => {
+    const matchesSearch = `${e.prenom} ${e.nom}`.toLowerCase().includes(searchQuery.toLowerCase());
+    if (!matchesSearch) return false;
+    if (activeTab === 'pai') return e.pai?.actif;
+    if (activeTab === 'allergies') return e.allergies && e.allergies.length > 0;
+    return true;
+  });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredEnfants.length / itemsPerPage) || 1;
+  const paginatedEnfants = filteredEnfants.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
-  const handleViewEnfant = (enfantId: string) => {
-    navigate(`/rsai/enfants/${enfantId}`);
-  };
-
   const handleExportPDF = () => {
-    alert(
-      'Export du registre sanitaire en PDF\n\nCette fonctionnalité génèrera un rapport PDF complet incluant:\n- Liste des enfants avec leurs informations de santé\n- Statut des PAI actifs\n- Conformité vaccinale\n- Allergies et informations médicales\n- Journal d\'audit des accès\n\nFormat: PDF/A-3 (archivage légal)'
-    );
+    alert("Export officiel du Registre Sanitaire (PDF/A-3).");
   };
 
   if (loading) {
     return (
-      <div className="p-8 min-h-screen bg-gradient-to-br from-slate-50 via-fuchsia-50/20 to-indigo-50/20 dark:from-zinc-950 dark:via-zinc-900/50 dark:to-zinc-950 flex items-center justify-center">
-        <div className="text-center">
-          <IoReloadOutline className="h-12 w-12 text-fuchsia-500 mx-auto mb-3 animate-spin" />
-          <p className="text-sm text-slate-600 dark:text-zinc-400">Chargement du registre sanitaire...</p>
+      <AppBackground>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center space-y-3">
+            <IoReloadOutline className="h-8 w-8 text-fuchsia-600 animate-spin mx-auto" />
+            <p className="text-xs font-mono text-slate-500">Chargement sécurisé du registre...</p>
+          </div>
         </div>
-      </div>
+      </AppBackground>
     );
   }
 
   if (!isOnSite) {
     return (
-      <GeofencingStatus isOnSite={isOnSite} onToggle={() => setIsOnSite(!isOnSite)} creche={CRECHE_DATA} />
+      <AppBackground>
+        <GeofencingStatus isOnSite={isOnSite} onToggle={() => setIsOnSite(!isOnSite)} creche={CRECHE_DATA} />
+      </AppBackground>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="p-8 space-y-6 bg-gradient-to-br from-slate-50 via-fuchsia-50/20 to-indigo-50/20 dark:from-zinc-950 dark:via-zinc-900/50 dark:to-zinc-950 min-h-screen text-slate-900 dark:text-zinc-100 font-sans antialiased"
-    >
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black tracking-tight">Tableau de bord RSAI</h1>
-          <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1">Vue d'ensemble du registre sanitaire</p>
-        </div>
-      </div>
-
-      {/* Bannière de Statut de Géorepérage */}
-      <Card className="rounded-3xl border-fuchsia-200 dark:border-fuchsia-900/50 bg-fuchsia-50/40 dark:bg-fuchsia-950/20 backdrop-blur-xl shadow-md">
-        <CardContent className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-2xl bg-fuchsia-100 dark:bg-fuchsia-900/60 text-fuchsia-700 dark:text-fuchsia-300 border border-fuchsia-200 dark:border-fuchsia-800">
-              <IoRadioButtonOnOutline className="h-6 w-6 animate-pulse" />
-            </div>
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="min-h-screen text-slate-900 dark:text-zinc-100 flex flex-col justify-between p-6 md:p-10 font-sans antialiased space-y-6"
+      >
+        {/* TOP CONTENT CONTAINER */}
+        <div className="w-full max-w-6xl mx-auto space-y-6">
+          
+          {/* HEADER PRO */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-200/80 dark:border-zinc-800">
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-fuchsia-900 dark:text-fuchsia-200">
-                  Accès Contrôlé RSAI — Présence Validée
+              <div className="flex items-center gap-2 mb-1">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-950 dark:text-fuchsia-300 border border-fuchsia-200 dark:border-fuchsia-900">
+                  Module Sanitaire RSAI
                 </span>
-                <Badge
-                  variant="outline"
-                  className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border-emerald-200 text-[10px]"
-                >
-                  Périmètre &lt; 50m
-                </Badge>
+                <span className="text-xs text-slate-500 font-mono">Effectif : {enfants.length} enfants</span>
               </div>
-              <p className="text-xs text-slate-600 dark:text-zinc-400 mt-0.5 flex items-center gap-1">
-                <IoLocationOutline className="h-3.5 w-3.5 text-fuchsia-600 dark:text-fuchsia-400" />
-                {CRECHE_DATA.nom} — {CRECHE_DATA.adresse}
-              </p>
-            </div>
-          </div>
-
-          <Button
-            onClick={() => setIsOnSite(false)}
-            variant="outline"
-            size="sm"
-            className="h-9 text-xs border-fuchsia-200 dark:border-fuchsia-800 text-fuchsia-700 dark:text-fuchsia-300 hover:bg-fuchsia-100/50 dark:hover:bg-fuchsia-950/50 cursor-pointer rounded-2xl"
-          >
-            <IoLockClosedOutline className="mr-1.5 h-3.5 w-3.5" />
-            Simuler sortie de zone (DEV)
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Cartes KPI */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase">Enfants Enregistrés</p>
-                <p className="text-2xl font-black mt-1">{enfants.length}</p>
-              </div>
-              <div className="h-12 w-12 rounded-2xl bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center border border-blue-200 dark:border-blue-800">
-                <IoPeopleOutline className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase">Conformité Vaccinale</p>
-                <p className="text-2xl font-black mt-1 text-emerald-600">{complianceRate}%</p>
-              </div>
-              <div className="h-12 w-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
-                <IoShieldCheckmarkOutline className="h-6 w-6 text-emerald-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase">PAI Actifs</p>
-                <p className="text-2xl font-black mt-1 text-amber-600">{paiActifs}</p>
-              </div>
-              <div className="h-12 w-12 rounded-2xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center border border-amber-200 dark:border-amber-800">
-                <IoDocumentTextOutline className="h-6 w-6 text-amber-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase">Allergies Déclarées</p>
-                <p className="text-2xl font-black mt-1 text-rose-600">{allergiesCount}</p>
-              </div>
-              <div className="h-12 w-12 rounded-2xl bg-rose-50 dark:bg-rose-950/30 flex items-center justify-center border border-rose-200 dark:border-rose-800">
-                <IoWarningOutline className="h-6 w-6 text-rose-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Dossiers des Enfants */}
-      <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-        <CardHeader className="p-6 border-b border-slate-200 dark:border-zinc-800">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <CardTitle className="text-base font-black">Dossiers des Enfants</CardTitle>
-              <CardDescription className="text-xs text-slate-500 dark:text-zinc-400">
-                Accès rapide aux informations de santé
-              </CardDescription>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                Registre de Santé & Traçabilité
+              </h1>
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1 sm:w-64">
-                <IoSearchOutline className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input
-                  type="text"
-                  placeholder="Rechercher un enfant..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-10 text-xs rounded-2xl bg-slate-50 dark:bg-zinc-800/50 border-slate-200 dark:border-zinc-700"
-                />
-              </div>
-              <Button
-                size="sm"
-                onClick={handleExportPDF}
-                className="h-10 text-xs bg-fuchsia-600 hover:bg-fuchsia-700 text-white font-bold shrink-0 cursor-pointer rounded-2xl"
-              >
-                <IoDownloadOutline className="mr-1.5 h-4 w-4" />
-                Export PDF
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent className="p-6">
-          {filteredEnfants.length === 0 ? (
-            <div className="text-center py-12">
-              <IoPeopleOutline className="h-16 w-16 text-slate-300 dark:text-zinc-600 mx-auto mb-4" />
-              <p className="text-sm text-slate-500 dark:text-zinc-400">
-                {searchQuery ? 'Aucun enfant ne correspond à votre recherche.' : 'Aucun enfant enregistré.'}
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredEnfants.map((enfant) => (
-                <motion.div
-                  key={enfant.id}
-                  whileHover={{ scale: 1.02 }}
-                  className="p-4 rounded-2xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/50 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all cursor-pointer"
-                  onClick={() => handleViewEnfant(enfant.id)}
-                >
-                  <div className="flex items-start gap-3">
-                    <Avatar className="h-12 w-12 border-2 border-fuchsia-500/30">
-                      <AvatarImage src={enfant.photo} />
-                      <AvatarFallback className="bg-fuchsia-50 text-fuchsia-800 dark:bg-fuchsia-950 dark:text-fuchsia-200 text-sm font-bold">
-                        {enfant.prenom[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <h4 className="text-sm font-bold truncate">
-                          {enfant.prenom} {enfant.nom}
-                        </h4>
-                        <IoArrowForwardOutline className="h-4 w-4 text-slate-400 shrink-0" />
-                      </div>
-                      <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-                        {enfant.dateNaissance
-                          ? Math.floor(
-                              (new Date().getTime() - new Date(enfant.dateNaissance).getTime()) /
-                                (365.25 * 24 * 60 * 60 * 1000)
-                            )
-                          : 0}{' '}
-                        ans
-                      </p>
-                      <div className="flex items-center gap-2 mt-2">
-                        {enfant.pai?.actif && (
-                          <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-200 text-[10px] px-1.5 py-0">
-                            PAI
-                          </Badge>
-                        )}
-                        {enfant.allergies && enfant.allergies.length > 0 && (
-                          <Badge className="bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border-rose-200 text-[10px] px-1.5 py-0">
-                            Allergies
-                          </Badge>
-                        )}
-                        {enfant.vaccinations && enfant.vaccinations.length >= 2 && (
-                          <IoCheckmarkCircleOutline className="h-4 w-4 text-emerald-600" />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Journal d'Audit */}
-      <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-        <CardHeader className="p-6 border-b border-slate-200 dark:border-zinc-800">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">
-                <IoTimeOutline className="h-5 w-5" />
-              </div>
-              <div>
-                <CardTitle className="text-base font-black">Journal d'Audit</CardTitle>
-                <CardDescription className="text-xs text-slate-500 dark:text-zinc-400">
-                  Dernières activités sur la plateforme
-                </CardDescription>
-              </div>
-            </div>
             <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/rsai/audit')}
-              className="h-9 text-xs font-bold rounded-2xl cursor-pointer"
+              onClick={handleExportPDF}
+              className="bg-fuchsia-700 hover:bg-fuchsia-600 text-white font-medium text-xs h-9 px-4 rounded-xl shadow-sm transition-all cursor-pointer flex items-center gap-2"
             >
-              Voir tout
-              <IoArrowForwardOutline className="ml-2 h-3.5 w-3.5" />
+              <IoDownloadOutline className="h-4 w-4" />
+              Exporter le Registre (PDF)
             </Button>
           </div>
-        </CardHeader>
 
-        <CardContent className="p-6 space-y-3">
-          {logsSecurite.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-sm text-slate-500 dark:text-zinc-400">Aucun événement de sécurité récent.</p>
-            </div>
-          ) : (
-            logsSecurite.map((log) => {
-              const isAuthorized = log.type === 'info' || log.type === 'success';
-
-              return (
-                <div
-                  key={log._id || log.id}
-                  className={`p-4 rounded-2xl border text-xs flex items-center justify-between gap-3 ${
-                    isAuthorized
-                      ? 'bg-slate-50 dark:bg-zinc-900/50 border-slate-200/80 dark:border-zinc-800'
-                      : 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/40'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    {isAuthorized ? (
-                      <IoShieldCheckmarkOutline className="h-5 w-5 text-emerald-600 shrink-0" />
-                    ) : (
-                      <IoWarningOutline className="h-5 w-5 text-rose-600 shrink-0" />
-                    )}
-                    <div>
-                      <span className="font-bold text-slate-900 dark:text-zinc-100 font-mono uppercase text-[10px]">
-                        {log.action || log.type.replace(/_/g, ' ')}
-                      </span>
-                      <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-                        {log.message || log.details}
-                      </p>
-                    </div>
-                  </div>
-
-                  <span className="text-[10px] text-slate-400 font-mono shrink-0">
-                    {format(new Date(log.createdAt || log.timestamp), 'dd/MM/yyyy · HH:mm', { locale: fr })}
+          {/* STATUT GEOFENCING */}
+          <div className="bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-fuchsia-200/50 dark:border-zinc-800 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+            <div className="flex items-center gap-3.5">
+              <div className="h-10 w-10 rounded-xl bg-fuchsia-100 dark:bg-fuchsia-950/60 border border-fuchsia-200 dark:border-fuchsia-900 flex items-center justify-center text-fuchsia-700 dark:text-fuchsia-300 shrink-0">
+                <IoRadioButtonOnOutline className="h-5 w-5 animate-pulse" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white">Périmètre de Sécurité Validé</span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900">
+                    Actif (&lt;50m)
                   </span>
                 </div>
-              );
-            })
-          )}
-        </CardContent>
-      </Card>
-    </motion.div>
+                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-mono">
+                  <IoLocationOutline className="inline mr-1 text-fuchsia-600" /> {CRECHE_DATA.nom} — {CRECHE_DATA.adresse}
+                </p>
+              </div>
+            </div>
+
+            <Button
+              onClick={() => setIsOnSite(false)}
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs font-mono border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer rounded-xl bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md"
+            >
+              <IoLockClosedOutline className="mr-1.5 h-3.5 w-3.5 text-slate-400" />
+              Simuler sortie de zone
+            </Button>
+          </div>
+
+          {/* KPI METRICS */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4 shadow-sm border-l-4 border-l-fuchsia-600">
+              <p className="text-[11px] font-mono uppercase tracking-wider text-slate-500">Enfants Inscrits</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{enfants.length}</p>
+            </div>
+
+            <div className="bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4 shadow-sm border-l-4 border-l-emerald-500">
+              <p className="text-[11px] font-mono uppercase tracking-wider text-slate-500">Conformité Vaccinale</p>
+              <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{complianceRate}%</p>
+            </div>
+
+            <div className="bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4 shadow-sm border-l-4 border-l-amber-500">
+              <p className="text-[11px] font-mono uppercase tracking-wider text-slate-500">PAI Actifs (Urgences)</p>
+              <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">{paiActifs.length}</p>
+            </div>
+
+            <div className="bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4 shadow-sm border-l-4 border-l-rose-500">
+              <p className="text-[11px] font-mono uppercase tracking-wider text-slate-500">Allergies Signalées</p>
+              <p className="text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1">{allergiesList.length}</p>
+            </div>
+          </div>
+
+          {/* TABLEAU DES ENFANTS (Optimisé 20+ enfants, propre et pro) */}
+          <div className="bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Dossiers Nominatifs des Enfants</h2>
+                <p className="text-xs text-slate-500">Affichage sous forme de liste structurée ({filteredEnfants.length} résultats)</p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-2.5">
+                <div className="relative w-full sm:w-60">
+                  <IoSearchOutline className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input
+                    type="text"
+                    placeholder="Rechercher par nom..."
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="pl-9 h-9 text-xs bg-white/40 dark:bg-zinc-900/40 border-slate-200 dark:border-zinc-700 rounded-xl"
+                  />
+                </div>
+
+                <div className="flex items-center gap-1 bg-slate-100/60 dark:bg-zinc-800/60 p-1 rounded-xl w-full sm:w-auto">
+                  <button
+                    onClick={() => { setActiveTab('all'); setCurrentPage(1); }}
+                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                      activeTab === 'all' ? 'bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    Tous
+                  </button>
+                  <button
+                    onClick={() => { setActiveTab('pai'); setCurrentPage(1); }}
+                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                      activeTab === 'pai' ? 'bg-amber-500 text-white shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    PAI
+                  </button>
+                  <button
+                    onClick={() => { setActiveTab('allergies'); setCurrentPage(1); }}
+                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                      activeTab === 'allergies' ? 'bg-rose-500 text-white shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    Allergies
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4">
+              {paginatedEnfants.length === 0 ? (
+                <div className="text-center py-12 text-slate-400 text-xs font-mono">
+                  Aucun dossier enfant ne correspond aux critères actuels.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {paginatedEnfants.map((enfant) => (
+                    <div
+                      key={enfant.id || enfant._id}
+                      onClick={() => navigate(`/rsai/enfants/${enfant.id || enfant._id}`)}
+                      className="p-3 bg-white/40 dark:bg-zinc-800/40 hover:bg-white/80 dark:hover:bg-zinc-800 border border-slate-200/60 dark:border-zinc-700/60 rounded-xl transition-all cursor-pointer flex items-center justify-between gap-4 group"
+                    >
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <Avatar className="h-9 w-9 border border-slate-200 dark:border-zinc-700 shrink-0">
+                          <AvatarImage src={enfant.photo} />
+                          <AvatarFallback className="bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-950 dark:text-fuchsia-200 text-xs font-mono font-bold">
+                            {enfant.prenom?.[0]}{enfant.nom?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
+
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-slate-900 dark:text-white truncate group-hover:text-fuchsia-600 transition-colors">
+                              {enfant.prenom} {enfant.nom}
+                            </span>
+                            <span className="text-[11px] text-slate-400 font-mono">
+                              {enfant.dateNaissance
+                                ? `${Math.floor((new Date().getTime() - new Date(enfant.dateNaissance).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} ans`
+                                : ''}
+                            </span>
+                          </div>
+
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {enfant.pai?.actif && (
+                              <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                                PAI actif
+                              </span>
+                            )}
+                            {enfant.allergies && enfant.allergies.length > 0 && (
+                              <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300">
+                                Allergie(s)
+                              </span>
+                            )}
+                            {enfant.vaccinations && enfant.vaccinations.length >= 2 && (
+                              <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                                Vaccins OK
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0 text-slate-400 group-hover:text-fuchsia-600 transition-colors">
+                        <span className="text-xs font-mono hidden sm:inline">Dossier</span>
+                        <IoArrowForwardOutline className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* CONTRÔLES DE PAGINATION */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-200/80 dark:border-zinc-800 px-1">
+                  <span className="text-xs text-slate-500 font-mono">
+                    Page {currentPage} / {totalPages}
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      className="h-8 px-2.5 text-xs rounded-xl cursor-pointer bg-white/40 dark:bg-zinc-900/40"
+                    >
+                      <IoChevronBackOutline className="h-3.5 w-3.5 mr-1" /> Précédent
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                      className="h-8 px-2.5 text-xs rounded-xl cursor-pointer bg-white/40 dark:bg-zinc-900/40"
+                    >
+                      Suivant <IoChevronForwardOutline className="h-3.5 w-3.5 ml-1" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* JOURNAL D'AUDIT COMPACT */}
+          <div className="bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800 rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-4 border-b border-slate-200/80 dark:border-zinc-800 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <IoTimeOutline className="h-4 w-4 text-slate-400" />
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">Journal d'Audit Récent</h2>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/rsai/audit')}
+                className="text-xs text-fuchsia-700 dark:text-fuchsia-400 h-7 font-bold cursor-pointer hover:bg-transparent"
+              >
+                Historique complet <IoArrowForwardOutline className="ml-1 h-3 w-3" />
+              </Button>
+            </div>
+
+            <div className="p-4 space-y-2">
+              {logsSecurite.length === 0 ? (
+                <p className="text-xs text-slate-400 font-mono text-center py-2">Aucun log récent consigné.</p>
+              ) : (
+                logsSecurite.map((log) => (
+                  <div
+                    key={log._id || log.id}
+                    className="p-2.5 rounded-xl bg-white/40 dark:bg-zinc-800/40 border border-slate-200/60 dark:border-zinc-700/50 flex items-center justify-between text-xs font-mono"
+                  >
+                    <div className="min-w-0 pr-4">
+                      <span className="font-bold text-slate-900 dark:text-zinc-100 uppercase text-[10px]">
+                        {log.action || log.type}
+                      </span>
+                      <p className="text-slate-500 text-[11px] truncate mt-0.5">{log.message || log.details}</p>
+                    </div>
+                    <span className="text-slate-400 text-[10px] shrink-0">
+                      {format(new Date(log.createdAt || log.timestamp), 'dd/MM · HH:mm', { locale: fr })}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+        </div>
+
+        {/* FOOTER */}
+        <div className="w-full max-w-6xl mx-auto text-center border-t border-slate-200/30 dark:border-zinc-800/30 pt-4 mt-6">
+          <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">
+            Kids'Med IA © 2026 · Plateforme de gestion sanitaire de la petite enfance
+          </p>
+        </div>
+      </motion.div>
+    </AppBackground>
   );
 };

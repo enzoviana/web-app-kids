@@ -26,6 +26,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { AppBackground } from '@/components/AppBackground';
 
 interface Creche {
   id: string;
@@ -229,178 +230,187 @@ export const MissionsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="p-8 min-h-screen bg-gradient-to-br from-slate-50 via-fuchsia-50/20 to-indigo-50/20 dark:from-zinc-950 dark:via-zinc-900/50 dark:to-zinc-950 flex items-center justify-center">
-        <div className="text-center">
-          <IoReloadOutline className="h-12 w-12 text-fuchsia-500 mx-auto mb-3 animate-spin" />
-          <p className="text-sm text-slate-600 dark:text-zinc-400">Chargement de vos missions...</p>
+      <AppBackground>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <IoReloadOutline className="h-12 w-12 text-fuchsia-600 mx-auto mb-3 animate-spin" />
+            <p className="text-sm font-medium text-slate-600 dark:text-zinc-400">Chargement de vos missions...</p>
+          </div>
         </div>
-      </div>
+      </AppBackground>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="p-8 space-y-6 bg-gradient-to-br from-slate-50 via-fuchsia-50/20 to-indigo-50/20 dark:from-zinc-950 dark:via-zinc-900/50 dark:to-zinc-950 min-h-screen text-slate-900 dark:text-zinc-100 font-sans antialiased"
-    >
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black tracking-tight">Mes Missions RSAI</h1>
-          <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1">
-            Établissements dont vous êtes responsable
-          </p>
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800 pb-5">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight">Mes Missions RSAI</h1>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-fuchsia-50 dark:bg-fuchsia-950/50 text-fuchsia-700 dark:text-fuchsia-400 border border-fuchsia-200 dark:border-fuchsia-800 shadow-xs">
+                <IoBusinessOutline className="h-3.5 w-3.5" />
+                Module Missions
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+              Établissements dont vous êtes responsable
+            </p>
+          </div>
+
+          <Button
+            size="sm"
+            onClick={openCreateModal}
+            className="h-10 px-5 text-xs font-bold rounded-2xl bg-fuchsia-700 hover:bg-fuchsia-600 text-white transition-all shadow-md cursor-pointer"
+          >
+            <IoAddOutline className="h-4 w-4 mr-2" />
+            Nouvelle mission
+          </Button>
         </div>
 
-        <Button
-          size="sm"
-          onClick={openCreateModal}
-          className="h-11 px-5 text-xs font-bold rounded-2xl bg-fuchsia-600 hover:bg-fuchsia-700 text-white transition-all shadow-md cursor-pointer"
-        >
-          <IoAddOutline className="h-4 w-4 mr-2" />
-          Nouvelle mission
-        </Button>
-      </div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <Card className="relative rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md border-l-4 border-l-fuchsia-500">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase">Total Établissements</p>
+                  <p className="text-3xl font-black mt-2">{stats.total}</p>
+                </div>
+                <div className="h-12 w-12 rounded-2xl bg-fuchsia-50 dark:bg-fuchsia-950/30 flex items-center justify-center border border-fuchsia-200 dark:border-fuchsia-800">
+                  <IoBusinessOutline className="h-6 w-6 text-fuchsia-600 dark:text-fuchsia-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
+          <Card className="relative rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md border-l-4 border-l-emerald-500">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase">Missions Actives</p>
+                  <p className="text-3xl font-black mt-2 text-emerald-600 dark:text-emerald-400">{stats.actives}</p>
+                </div>
+                <div className="h-12 w-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
+                  <IoCheckmarkCircleOutline className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="relative rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md border-l-4 border-l-blue-500">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase">Total Enfants</p>
+                  <p className="text-3xl font-black mt-2 text-blue-600 dark:text-blue-400">{stats.totalEnfants}</p>
+                </div>
+                <div className="h-12 w-12 rounded-2xl bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center border border-blue-200 dark:border-blue-800">
+                  <IoPeopleOutline className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="relative rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md border-l-4 border-l-amber-500">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase">Capacité Totale</p>
+                  <p className="text-3xl font-black mt-2 text-amber-600 dark:text-amber-400">{stats.totalCapacite}</p>
+                </div>
+                <div className="h-12 w-12 rounded-2xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center border border-amber-200 dark:border-amber-800">
+                  <IoLocationOutline className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Filtres et recherche */}
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md">
           <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase">Total Établissements</p>
-                <p className="text-2xl font-black mt-1">{stats.total}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Recherche */}
+              <div className="relative">
+                <IoSearchOutline className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                  type="text"
+                  placeholder="Rechercher par nom ou ville..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 h-10 text-xs rounded-2xl bg-slate-50 dark:bg-zinc-800/50 border-slate-200 dark:border-zinc-700 focus:border-fuchsia-500 focus:ring-fuchsia-500"
+                />
               </div>
-              <div className="h-12 w-12 rounded-2xl bg-fuchsia-50 dark:bg-fuchsia-950/30 flex items-center justify-center border border-fuchsia-200 dark:border-fuchsia-800">
-                <IoBusinessOutline className="h-6 w-6 text-fuchsia-600" />
+
+              {/* Filtre statut */}
+              <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-zinc-800 p-1 rounded-2xl border border-slate-200/80 dark:border-zinc-700">
+                <button
+                  onClick={() => setFilterStatut('all')}
+                  className={`flex-1 h-9 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                    filterStatut === 'all'
+                      ? 'bg-fuchsia-600 text-white shadow-xs'
+                      : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
+                  }`}
+                >
+                  Toutes
+                </button>
+                <button
+                  onClick={() => setFilterStatut('active')}
+                  className={`flex-1 h-9 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                    filterStatut === 'active'
+                      ? 'bg-fuchsia-600 text-white shadow-xs'
+                      : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
+                  }`}
+                >
+                  Actives
+                </button>
+                <button
+                  onClick={() => setFilterStatut('terminee')}
+                  className={`flex-1 h-9 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                    filterStatut === 'terminee'
+                      ? 'bg-fuchsia-600 text-white shadow-xs'
+                      : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
+                  }`}
+                >
+                  Terminées
+                </button>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase">Missions Actives</p>
-                <p className="text-2xl font-black mt-1 text-emerald-600">{stats.actives}</p>
-              </div>
-              <div className="h-12 w-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
-                <IoCheckmarkCircleOutline className="h-6 w-6 text-emerald-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase">Total Enfants</p>
-                <p className="text-2xl font-black mt-1 text-blue-600">{stats.totalEnfants}</p>
-              </div>
-              <div className="h-12 w-12 rounded-2xl bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center border border-blue-200 dark:border-blue-800">
-                <IoPeopleOutline className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase">Capacité Totale</p>
-                <p className="text-2xl font-black mt-1 text-amber-600">{stats.totalCapacite}</p>
-              </div>
-              <div className="h-12 w-12 rounded-2xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center border border-amber-200 dark:border-amber-800">
-                <IoLocationOutline className="h-6 w-6 text-amber-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filtres et recherche */}
-      <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-        <CardContent className="p-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Recherche */}
-            <div className="relative">
-              <IoSearchOutline className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input
-                type="text"
-                placeholder="Rechercher par nom ou ville..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-10 text-xs rounded-2xl bg-slate-50 dark:bg-zinc-800/50 border-slate-200 dark:border-zinc-700"
-              />
-            </div>
-
-            {/* Filtre statut */}
-            <div className="flex items-center gap-2">
-              <Button
-                variant={filterStatut === 'all' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilterStatut('all')}
-                className={`flex-1 h-10 text-xs font-bold rounded-xl ${
-                  filterStatut === 'all' ? 'bg-fuchsia-600 hover:bg-fuchsia-700' : ''
-                }`}
-              >
-                Toutes
-              </Button>
-              <Button
-                variant={filterStatut === 'active' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilterStatut('active')}
-                className={`flex-1 h-10 text-xs font-bold rounded-xl ${
-                  filterStatut === 'active' ? 'bg-emerald-600 hover:bg-emerald-700' : ''
-                }`}
-              >
-                Actives
-              </Button>
-              <Button
-                variant={filterStatut === 'terminee' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilterStatut('terminee')}
-                className={`flex-1 h-10 text-xs font-bold rounded-xl ${
-                  filterStatut === 'terminee' ? 'bg-slate-600 hover:bg-slate-700' : ''
-                }`}
-              >
-                Terminées
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Liste des crèches */}
-      {filteredCreches.length === 0 ? (
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-16 text-center">
-            <IoBusinessOutline className="h-16 w-16 text-slate-300 dark:text-zinc-600 mx-auto mb-4" />
-            <p className="text-sm text-slate-500 dark:text-zinc-400 font-medium">
-              {searchQuery || filterStatut !== 'all'
-                ? 'Aucun établissement ne correspond aux critères'
-                : 'Aucune mission affectée'}
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <AnimatePresence mode="popLayout">
-            {filteredCreches.map((creche) => (
-              <motion.div
-                key={creche.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md hover:shadow-lg transition-all">
-                  <CardContent className="p-6 space-y-4">
+        {/* Liste des crèches */}
+        {filteredCreches.length === 0 ? (
+          <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md">
+            <CardContent className="p-16 text-center">
+              <IoBusinessOutline className="h-16 w-16 text-slate-300 dark:text-zinc-600 mx-auto mb-4" />
+              <p className="text-sm text-slate-500 dark:text-zinc-400 font-medium">
+                {searchQuery || filterStatut !== 'all'
+                  ? 'Aucun établissement ne correspond aux critères'
+                  : 'Aucune mission affectée'}
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <AnimatePresence mode="popLayout">
+              {filteredCreches.map((creche) => (
+                <motion.div
+                  key={creche.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md hover:shadow-lg transition-all">
+                    <CardContent className="p-6 space-y-4">
                     {/* Header avec nom et statut */}
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
@@ -505,10 +515,10 @@ export const MissionsPage: React.FC = () => {
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      )}
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
 
       {/* MODAL DE CRÉATION */}
       <AnimatePresence>
@@ -1234,6 +1244,14 @@ export const MissionsPage: React.FC = () => {
           </>
         )}
       </AnimatePresence>
-    </motion.div>
+
+        {/* Professional Footer */}
+        <footer className="mt-8 pt-6 border-t border-slate-200 dark:border-zinc-800 text-center">
+          <p className="text-xs text-slate-500 dark:text-zinc-500 font-medium">
+            Kids'Med IA © 2026 - Gestion des Missions RSAI
+          </p>
+        </footer>
+      </motion.div>
+    </AppBackground>
   );
 };

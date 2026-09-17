@@ -19,11 +19,25 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { medicamentApi } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
+import { AppBackground } from '@/components/AppBackground';
 
 const DEFAULT_ETABLISSEMENT_ID = 'test-creche-001';
 
 export const RegistreMedicamentsPage: React.FC = () => {
   const { user } = useAuth();
+
+  // Role detection for theming
+  const isCreche = user?.role === 'creche' || user?.role === 'professionnel';
+  const isMedecin = user?.role === 'medecin';
+  const isAuxiliaire = user?.role === 'auxiliaire' || user?.role === 'professionnel_puericulture';
+
+  // Dynamic theme based on role
+  const roleTheme = isCreche
+    ? { primary: 'lime', hex: '#8BC34A', light: 'lime-50', dark: 'lime-950', border: 'lime-200', text: 'lime-600', darkText: 'lime-400' }
+    : isMedecin
+    ? { primary: 'cyan', hex: '#0099FF', light: 'cyan-50', dark: 'cyan-950', border: 'cyan-200', text: 'cyan-600', darkText: 'cyan-400' }
+    : { primary: 'teal', hex: '#14B8A6', light: 'teal-50', dark: 'teal-950', border: 'teal-200', text: 'teal-600', darkText: 'teal-400' };
+
   const [medicaments, setMedicaments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -136,164 +150,205 @@ export const RegistreMedicamentsPage: React.FC = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="p-16 text-center space-y-4 max-w-md mx-auto mt-20">
-        <IoReloadOutline className="h-12 w-12 text-teal-500 mx-auto animate-spin" />
-        <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">
-          Chargement du registre médicaments...
-        </p>
-      </div>
+      <AppBackground>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center space-y-4">
+            <IoReloadOutline className={`h-12 w-12 mx-auto animate-spin ${isCreche ? 'text-lime-600' : isMedecin ? 'text-cyan-600' : 'text-teal-600'}`} />
+            <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">
+              Chargement du registre médicaments...
+            </p>
+          </div>
+        </div>
+      </AppBackground>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <div className="p-16 text-center space-y-4 max-w-md mx-auto mt-20">
-        <IoAlertCircleOutline className="h-12 w-12 text-rose-500 mx-auto" />
-        <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">
-          Erreur de chargement
-        </p>
-        <p className="text-xs text-slate-500 dark:text-zinc-400">{error}</p>
-        <Button onClick={loadData}>
-          <IoReloadOutline className="h-4 w-4 mr-2" />
-          Réessayer
-        </Button>
-      </div>
+      <AppBackground>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center space-y-4 max-w-md">
+            <IoAlertCircleOutline className="h-12 w-12 text-rose-500 mx-auto" />
+            <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">Erreur de chargement</p>
+            <p className="text-xs text-slate-500 dark:text-zinc-400">{error}</p>
+            <Button
+              size="sm"
+              onClick={loadData}
+              className={`${isCreche ? 'bg-lime-700 hover:bg-lime-600' : isMedecin ? 'bg-cyan-700 hover:bg-cyan-600' : 'bg-teal-700 hover:bg-teal-600'}`}
+            >
+              <IoReloadOutline className="h-4 w-4 mr-2" />
+              Réessayer
+            </Button>
+          </div>
+        </div>
+      </AppBackground>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="p-4 sm:p-8 space-y-8 bg-gradient-to-br from-slate-50 via-teal-50/20 to-indigo-50/20 dark:from-zinc-950 dark:via-zinc-900/50 dark:to-zinc-950 min-h-screen text-slate-900 dark:text-zinc-100 font-sans antialiased"
-    >
-      
-      {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800 pb-5">
-        <div>
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
+
+        {/* Top Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800 pb-5">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight">Registre d'Administration des Médicaments</h1>
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-${roleTheme.light} dark:bg-${roleTheme.dark}/50 text-${roleTheme.text} dark:text-${roleTheme.darkText} border border-${roleTheme.border} dark:border-${roleTheme.dark.replace('950', '800')} shadow-xs`}
+                style={{
+                  backgroundColor: `color-mix(in srgb, ${roleTheme.hex} 10%, transparent)`,
+                  borderColor: `color-mix(in srgb, ${roleTheme.hex} 30%, transparent)`,
+                  color: roleTheme.hex
+                }}
+              >
+                <IoShieldCheckmarkOutline className="h-3.5 w-3.5" />
+                Conforme PMI / ARS
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+              Traçabilité horodatée et infalsifiable des soins et traitements administrés.
+            </p>
+          </div>
+
           <div className="flex items-center gap-2.5">
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight">Registre d'Administration des Médicaments</h1>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-800 shadow-xs">
-              <IoShieldCheckmarkOutline className="h-3.5 w-3.5" />
-              Conforme PMI / ARS
-            </span>
+            <Button variant="outline" size="sm" className="h-10 text-xs font-bold rounded-2xl border-slate-200 dark:border-zinc-700 transition-all cursor-pointer">
+              <IoPrintOutline className="mr-1.5 h-4 w-4 text-slate-500" />
+              Émargement PMI
+            </Button>
           </div>
-          <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
-            Traçabilité horodatée et infalsifiable des soins et traitements administrés en crèche.
-          </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <Button variant="outline" size="sm" className="h-10 text-xs font-bold rounded-2xl border-slate-200 dark:border-zinc-700 hover:bg-teal-50 hover:text-teal-600 transition-all cursor-pointer shadow-xs">
-            <IoPrintOutline className="mr-1.5 h-4 w-4 text-slate-500" />
-            Émargement PMI
-          </Button>
-        </div>
-      </div>
+        {/* Analytics KPI Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
 
-      {/* Analytics KPI Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold text-slate-500 dark:text-zinc-400">Soins du Jour</p>
-              <p className="text-3xl font-black tracking-tight mt-2 text-slate-900 dark:text-zinc-100">{stats.administrationsToday}</p>
-            </div>
-            <div className="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 border border-teal-200/60 dark:border-teal-800 shadow-xs">
-              <IoMedkitOutline className="h-6 w-6" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold text-slate-500 dark:text-zinc-400">Administrés</p>
-              <p className="text-3xl font-black tracking-tight mt-2 text-teal-600 dark:text-teal-400">{stats.adminFaites}</p>
-            </div>
-            <div className="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 border border-teal-200/60 dark:border-teal-800 shadow-xs">
-              <IoCheckmarkCircleOutline className="h-6 w-6" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold text-slate-500 dark:text-zinc-400">Prises à Venir</p>
-              <p className="text-3xl font-black tracking-tight mt-2 text-amber-600 dark:text-amber-400">{stats.administrationsToday - stats.adminFaites}</p>
-            </div>
-            <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200/60 dark:border-amber-800 shadow-xs">
-              <IoTimeOutline className="h-6 w-6" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold text-slate-500 dark:text-zinc-400">Conformité PAI</p>
-              <div className="mt-2 flex items-center gap-1.5 text-xs font-mono font-bold text-teal-600 bg-teal-50 dark:bg-teal-950/40 px-2.5 py-1 rounded-xl border border-teal-200/60 dark:border-teal-800 w-fit">
-                <IoShieldCheckmarkOutline className="h-4 w-4" /> 100% Validés
+          <Card className={`rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md overflow-hidden relative border-l-4`}
+            style={{ borderLeftColor: roleTheme.hex }}
+          >
+            <CardContent className="p-5 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold text-slate-500 dark:text-zinc-400">Soins du Jour</p>
+                <p className="text-3xl font-black tracking-tight mt-2 text-slate-900 dark:text-zinc-100">{stats.administrationsToday}</p>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="p-3 rounded-2xl border shadow-xs" style={{
+                backgroundColor: `color-mix(in srgb, ${roleTheme.hex} 10%, transparent)`,
+                borderColor: `color-mix(in srgb, ${roleTheme.hex} 30%, transparent)`,
+                color: roleTheme.hex
+              }}>
+                <IoMedkitOutline className="h-6 w-6" />
+              </div>
+            </CardContent>
+          </Card>
 
-      </div>
+          <Card className={`rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md overflow-hidden relative border-l-4`}
+            style={{ borderLeftColor: roleTheme.hex }}
+          >
+            <CardContent className="p-5 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold text-slate-500 dark:text-zinc-400">Administrés</p>
+                <p className="text-3xl font-black tracking-tight mt-2" style={{ color: roleTheme.hex }}>{stats.adminFaites}</p>
+              </div>
+              <div className="p-3 rounded-2xl border shadow-xs" style={{
+                backgroundColor: `color-mix(in srgb, ${roleTheme.hex} 10%, transparent)`,
+                borderColor: `color-mix(in srgb, ${roleTheme.hex} 30%, transparent)`,
+                color: roleTheme.hex
+              }}>
+                <IoCheckmarkCircleOutline className="h-6 w-6" />
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* Registry Table Section */}
-      <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md overflow-hidden">
-        
-        {/* Header & Filter Controls */}
-        <div className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="relative w-full md:w-80">
-            <IoSearchOutline className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Rechercher par enfant ou médicament..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-xs font-medium bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 rounded-2xl focus:outline-none focus:border-teal-500 transition-all shadow-xs"
-            />
-          </div>
+          <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md overflow-hidden relative border-l-4 border-l-amber-500">
+            <CardContent className="p-5 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold text-slate-500 dark:text-zinc-400">Prises à Venir</p>
+                <p className="text-3xl font-black tracking-tight mt-2 text-amber-600 dark:text-amber-400">{stats.administrationsToday - stats.adminFaites}</p>
+              </div>
+              <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200/60 dark:border-amber-800 shadow-xs">
+                <IoTimeOutline className="h-6 w-6" />
+              </div>
+            </CardContent>
+          </Card>
 
-          <div className="flex items-center gap-1.5 w-full md:w-auto bg-slate-100 dark:bg-zinc-800 p-1 rounded-2xl border border-slate-200/80 dark:border-zinc-700">
-            <button
-              onClick={() => setFilterStatus('all')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                filterStatus === 'all'
-                  ? 'bg-teal-600 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900'
-              }`}
-            >
-              Tous
-            </button>
-            <button
-              onClick={() => setFilterStatus('administre')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                filterStatus === 'administre'
-                  ? 'bg-teal-600 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900'
-              }`}
-            >
-              Administrés
-            </button>
-            <button
-              onClick={() => setFilterStatus('a_venir')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                filterStatus === 'a_venir'
-                  ? 'bg-teal-600 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900'
-              }`}
-            >
-              À Venir
-            </button>
-          </div>
+          <Card className={`rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md overflow-hidden relative border-l-4`}
+            style={{ borderLeftColor: roleTheme.hex }}
+          >
+            <CardContent className="p-5 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold text-slate-500 dark:text-zinc-400">Conformité PAI</p>
+                <div className="mt-2 flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-1 rounded-xl border w-fit" style={{
+                  backgroundColor: `color-mix(in srgb, ${roleTheme.hex} 10%, transparent)`,
+                  borderColor: `color-mix(in srgb, ${roleTheme.hex} 30%, transparent)`,
+                  color: roleTheme.hex
+                }}>
+                  <IoShieldCheckmarkOutline className="h-4 w-4" /> 100% Validés
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
         </div>
+
+        {/* Registry Table Section */}
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md overflow-hidden">
+        
+          {/* Header & Filter Controls */}
+          <div className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="relative w-full md:w-80">
+              <IoSearchOutline className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Rechercher par enfant ou médicament..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 text-xs font-medium bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 rounded-2xl focus:outline-none transition-all"
+                style={{
+                  borderColor: searchTerm ? roleTheme.hex : undefined
+                }}
+              />
+            </div>
+
+            <div className="flex items-center gap-1.5 w-full md:w-auto bg-slate-100 dark:bg-zinc-800 p-1 rounded-2xl border border-slate-200/80 dark:border-zinc-700">
+              <button
+                onClick={() => setFilterStatus('all')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  filterStatus === 'all'
+                    ? 'text-white shadow-xs'
+                    : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900'
+                }`}
+                style={filterStatus === 'all' ? { backgroundColor: roleTheme.hex } : {}}
+              >
+                Tous
+              </button>
+              <button
+                onClick={() => setFilterStatus('administre')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  filterStatus === 'administre'
+                    ? 'text-white shadow-xs'
+                    : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900'
+                }`}
+                style={filterStatus === 'administre' ? { backgroundColor: roleTheme.hex } : {}}
+              >
+                Administrés
+              </button>
+              <button
+                onClick={() => setFilterStatus('a_venir')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  filterStatus === 'a_venir'
+                    ? 'text-white shadow-xs'
+                    : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900'
+                }`}
+                style={filterStatus === 'a_venir' ? { backgroundColor: roleTheme.hex } : {}}
+              >
+                À Venir
+              </button>
+            </div>
+          </div>
 
         <CardContent className="p-0">
           {/* Table Container */}
@@ -406,18 +461,18 @@ export const RegistreMedicamentsPage: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Rappel Réglementaire Banderole */}
-      <div className="p-6 rounded-3xl bg-amber-500/10 dark:bg-amber-950/20 border border-amber-500/20 flex items-start gap-4">
-        <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0">
-          <IoAlertCircleOutline className="h-6 w-6" />
+        {/* Rappel Réglementaire Banderole */}
+        <div className="p-6 rounded-xl bg-amber-500/10 dark:bg-amber-950/20 border border-amber-500/20 flex items-start gap-4">
+          <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0">
+            <IoAlertCircleOutline className="h-6 w-6" />
+          </div>
+          <div className="space-y-1">
+            <h4 className="text-sm font-extrabold tracking-tight text-amber-900 dark:text-amber-200">Obligation de Traçabilité Sanitaire (Décret PMI/EAJE)</h4>
+            <p className="text-xs text-amber-800/90 dark:text-amber-300/90 font-medium leading-relaxed">
+              Tout acte d'administration de médicament en structure d'accueil doit obligatoirement correspondre à une ordonnance médicale en cours de validité. L'agent doit impérativement vérifier l'identité de l'enfant, la concordance du produit, la posologie prescrite et consigner immédiatement la prise dans ce registre.
+            </p>
+          </div>
         </div>
-        <div className="space-y-1">
-          <h4 className="text-sm font-extrabold tracking-tight text-amber-900 dark:text-amber-200">Obligation de Traçabilité Sanitaire (Décret PM/EAJE)</h4>
-          <p className="text-xs text-amber-800/90 dark:text-amber-300/90 font-medium leading-relaxed">
-            Tout acte d'administration de médicament en structure d'accueil doit obligatoirement correspondre à une ordonnance médicale en cours de validité. L'agent doit impérativement vérifier l'identité de l'enfant, la concordance du produit, la posologie prescrite et consigner immédiatement la prise dans ce registre.
-          </p>
-        </div>
-      </div>
 
       {/* Modal d'Administration / Consignation */}
       <AnimatePresence>
@@ -579,6 +634,27 @@ export const RegistreMedicamentsPage: React.FC = () => {
         )}
       </AnimatePresence>
 
-    </motion.div>
+        {/* Professional Footer */}
+        <footer className="mt-16 pt-8 border-t border-slate-200/80 dark:border-zinc-800">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+              <span className="font-bold" style={{ color: roleTheme.hex }}>Kids'Med IA</span>
+              <span>•</span>
+              <span>© 2026 Tous droits réservés</span>
+            </div>
+            <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-zinc-400">
+              <a href="#" className="hover:text-slate-700 dark:hover:text-zinc-200 transition-colors font-medium">
+                Centre d'aide
+              </a>
+              <span>•</span>
+              <a href="#" className="hover:text-slate-700 dark:hover:text-zinc-200 transition-colors font-medium">
+                Documentation
+              </a>
+            </div>
+          </div>
+        </footer>
+
+      </motion.div>
+    </AppBackground>
   );
 };

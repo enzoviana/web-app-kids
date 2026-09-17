@@ -1,78 +1,92 @@
 import React from 'react';
-import { IoPeople, IoMedkit, IoDocumentText, IoTime, IoCalendar, IoCheckmarkCircle } from 'react-icons/io5';
+import { IoPeople, IoMedkit, IoDocumentText, IoTime, IoCalendar, IoCheckmarkCircle, IoSparkles } from 'react-icons/io5';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { AppBackground } from '@/components/AppBackground';
+import { motion } from 'framer-motion';
 
 export const DashboardAuxiliaire: React.FC = () => {
   return (
-    <div className="p-8 space-y-6 bg-slate-50">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Tableau de bord - Section Moyens</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          {format(new Date(), 'EEEE d MMMM yyyy', { locale: fr })}
-        </p>
-      </div>
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
+        {/* Header */}
+        <div className="border-b border-slate-200/80 dark:border-zinc-800 pb-5">
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight">Tableau de bord - Section Moyens</h1>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-800 shadow-xs">
+              <IoSparkles className="h-3.5 w-3.5" />
+              Auxiliaire
+            </span>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+            {format(new Date(), 'EEEE d MMMM yyyy', { locale: fr })}
+          </p>
+        </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-500">Enfants présents</p>
-                <p className="text-2xl font-semibold text-primary mt-1">8 / 12</p>
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-l-4 border-l-teal-500">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase">Enfants présents</p>
+                  <p className="text-2xl font-black text-teal-600 dark:text-teal-400 mt-1">8 / 12</p>
+                </div>
+                <IoPeople className="h-6 w-6 text-teal-600 dark:text-teal-400" />
               </div>
-              <IoPeople className="h-8 w-8 text-primary" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-500">Soins à faire</p>
-                <p className="text-2xl font-semibold text-amber-600 mt-1">2</p>
+          <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-l-4 border-l-amber-500">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase">Soins à faire</p>
+                  <p className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">2</p>
+                </div>
+                <IoMedkit className="h-6 w-6 text-amber-600 dark:text-amber-400" />
               </div>
-              <IoMedkit className="h-8 w-8 text-amber-600" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-500">Transmissions</p>
-                <p className="text-2xl font-semibold text-emerald-600 mt-1">5</p>
+          <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-l-4 border-l-emerald-500">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase">Transmissions</p>
+                  <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">5</p>
+                </div>
+                <IoDocumentText className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <IoDocumentText className="h-8 w-8 text-emerald-600" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-500">Heure actuelle</p>
-                <p className="text-2xl font-semibold text-slate-900 mt-1">
-                  {format(new Date(), 'HH:mm')}
-                </p>
+          <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-l-4 border-l-slate-500">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase">Heure actuelle</p>
+                  <p className="text-2xl font-black text-slate-900 dark:text-zinc-100 mt-1">
+                    {format(new Date(), 'HH:mm')}
+                  </p>
+                </div>
+                <IoTime className="h-6 w-6 text-slate-400" />
               </div>
-              <IoTime className="h-8 w-8 text-slate-400" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
 
       {/* Enfants présents */}
-      <Card>
+      <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -96,14 +110,14 @@ export const DashboardAuxiliaire: React.FC = () => {
             ].map((enfant, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between p-4 rounded-lg border border-slate-200/60 hover:bg-slate-50 transition-colors"
+                className="flex items-center justify-between p-4 rounded-lg border border-slate-200/60 dark:border-zinc-700/60 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <Avatar className="h-10 w-10">
                     <AvatarFallback>{enfant.prenom[0]}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium text-slate-900">
+                    <p className="font-medium text-slate-900 dark:text-zinc-100">
                       {enfant.prenom} {enfant.nom}
                     </p>
                     <div className="flex gap-2 mt-1">
@@ -127,7 +141,7 @@ export const DashboardAuxiliaire: React.FC = () => {
       </Card>
 
       {/* Planning du jour */}
-      <Card>
+      <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
         <CardHeader>
           <CardTitle>Planning du jour</CardTitle>
           <CardDescription>Activités et horaires</CardDescription>
@@ -145,12 +159,12 @@ export const DashboardAuxiliaire: React.FC = () => {
               <div
                 key={idx}
                 className={`flex items-center gap-4 p-3 rounded-lg ${
-                  item.termine ? 'bg-emerald-50 border border-emerald-200/60' : 'bg-slate-50 border border-slate-200/60'
+                  item.termine ? 'bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/60' : 'bg-slate-50 dark:bg-zinc-800/50 border border-slate-200/60 dark:border-zinc-700/60'
                 }`}
               >
-                <div className="w-16 text-sm font-medium text-slate-700">{item.heure}</div>
+                <div className="w-16 text-sm font-medium text-slate-700 dark:text-zinc-300">{item.heure}</div>
                 <div className="flex-1">
-                  <p className={`text-sm ${item.termine ? 'text-emerald-900' : 'text-slate-900'}`}>
+                  <p className={`text-sm ${item.termine ? 'text-emerald-900 dark:text-emerald-400' : 'text-slate-900 dark:text-zinc-100'}`}>
                     {item.activite}
                   </p>
                 </div>
@@ -163,36 +177,53 @@ export const DashboardAuxiliaire: React.FC = () => {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="hover:shadow-md transition-shadow cursor-pointer">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md hover:shadow-md dark:hover:shadow-none transition-shadow cursor-pointer">
           <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-              <IoDocumentText className="h-6 w-6 text-primary" />
+            <div className="w-12 h-12 rounded-full bg-teal-50 dark:bg-teal-950/30 flex items-center justify-center mx-auto mb-3">
+              <IoDocumentText className="h-6 w-6 text-teal-600 dark:text-teal-400" />
             </div>
-            <h3 className="font-semibold text-slate-900">Cahier de liaison</h3>
-            <p className="text-sm text-slate-500 mt-1">Ajouter une transmission</p>
+            <h3 className="font-semibold text-slate-900 dark:text-zinc-100">Cahier de liaison</h3>
+            <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1">Ajouter une transmission</p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow cursor-pointer">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md hover:shadow-md dark:hover:shadow-none transition-shadow cursor-pointer">
           <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-3">
-              <IoMedkit className="h-6 w-6 text-amber-600" />
+            <div className="w-12 h-12 rounded-full bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center mx-auto mb-3">
+              <IoMedkit className="h-6 w-6 text-amber-600 dark:text-amber-400" />
             </div>
-            <h3 className="font-semibold text-slate-900">Registre médicaments</h3>
-            <p className="text-sm text-slate-500 mt-1">Enregistrer administration</p>
+            <h3 className="font-semibold text-slate-900 dark:text-zinc-100">Registre médicaments</h3>
+            <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1">Enregistrer administration</p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow cursor-pointer">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md hover:shadow-md dark:hover:shadow-none transition-shadow cursor-pointer">
           <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-3">
-              <IoCalendar className="h-6 w-6 text-emerald-600" />
+            <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center mx-auto mb-3">
+              <IoCalendar className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <h3 className="font-semibold text-slate-900">Pointage</h3>
-            <p className="text-sm text-slate-500 mt-1">Pointer présence</p>
+            <h3 className="font-semibold text-slate-900 dark:text-zinc-100">Pointage</h3>
+            <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1">Pointer présence</p>
           </CardContent>
         </Card>
       </div>
-    </div>
+
+      {/* Footer */}
+      <footer className="mt-16 pt-8 border-t border-slate-200/80 dark:border-zinc-800">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+            <span className="font-bold text-teal-600 dark:text-teal-400">Kids'Med IA</span>
+            <span>•</span>
+            <span>© 2026 Tous droits réservés</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-zinc-400">
+            <a href="#" className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">Aide</a>
+            <a href="#" className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">Confidentialité</a>
+            <a href="#" className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">CGU</a>
+          </div>
+        </div>
+      </footer>
+      </motion.div>
+    </AppBackground>
   );
 };

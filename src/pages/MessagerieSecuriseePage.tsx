@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IoMail, IoSend, IoLockClosed, IoAttach, IoSearchOutline, IoPeople, IoArchive, IoTrash, IoEllipsisVertical } from 'react-icons/io5';
+import { IoMail, IoSend, IoLockClosed, IoAttach, IoSearchOutline, IoPeople, IoArchive, IoTrash, IoEllipsisVertical, IoSparkles } from 'react-icons/io5';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,8 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { messageApi } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
+import { AppBackground } from '@/components/AppBackground';
+import { motion } from 'framer-motion';
 
 interface MessageData {
   id: string;
@@ -52,6 +54,27 @@ interface Conversation {
 
 export const MessagerieSecuriseePage: React.FC = () => {
   const { user } = useAuth();
+
+  // Role detection for dynamic theming
+  const isRSAI = user?.role === 'rsai' || user?.role === 'referent_sante';
+  const isCreche = user?.role === 'creche' || user?.role === 'professionnel';
+  const isMedecin = user?.role === 'medecin';
+  const isAuxiliaire = user?.role === 'auxiliaire' || user?.role === 'professionnel_puericulture';
+  const isParent = user?.role === 'parent';
+
+  // Dynamic theme based on role
+  const roleTheme = isRSAI
+    ? { hex: '#FF007A', name: 'RSAI' }
+    : isCreche
+    ? { hex: '#8BC34A', name: 'Crèche' }
+    : isMedecin
+    ? { hex: '#0099FF', name: 'Médecin' }
+    : isAuxiliaire
+    ? { hex: '#14B8A6', name: 'Auxiliaire' }
+    : isParent
+    ? { hex: '#8B5CF6', name: 'Parent' }
+    : { hex: '#64748B', name: 'Utilisateur' };
+
   const [messagesRecus, setMessagesRecus] = useState<MessageData[]>([]);
   const [messagesEnvoyes, setMessagesEnvoyes] = useState<MessageData[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -296,42 +319,57 @@ export const MessagerieSecuriseePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="p-8 h-[calc(100vh-80px)] flex items-center justify-center bg-slate-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-slate-600">Chargement des messages...</p>
+      <AppBackground>
+        <div className="max-w-6xl mx-auto p-6 md:p-10 h-[calc(100vh-80px)] flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderBottomColor: roleTheme.hex }}></div>
+            <p className="text-slate-600 dark:text-zinc-400">Chargement des messages...</p>
+          </div>
         </div>
-      </div>
+      </AppBackground>
     );
   }
 
   return (
-    <div className="p-8 h-[calc(100vh-80px)] flex flex-col bg-slate-50">
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 h-[calc(100vh-80px)] flex flex-col space-y-6 text-slate-900 dark:text-zinc-100"
+      >
       {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
-            <IoMail className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-semibold text-slate-900">Messagerie Sécurisée HDS</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <IoLockClosed className="h-4 w-4 text-emerald-600" />
-              <p className="text-sm text-slate-500">Conversations chiffrées de bout en bout</p>
-              {unreadCount > 0 && (
-                <Badge variant="error" className="ml-2">
-                  {unreadCount} non lu{unreadCount > 1 ? 's' : ''}
-                </Badge>
-              )}
-            </div>
-          </div>
+      <div className="border-b border-slate-200/80 dark:border-zinc-800 pb-5">
+        <div className="flex items-center gap-2.5 mb-2">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight">Messagerie Sécurisée HDS</h1>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold shadow-xs"
+            style={{
+              backgroundColor: `color-mix(in srgb, ${roleTheme.hex} 10%, transparent)`,
+              borderColor: `color-mix(in srgb, ${roleTheme.hex} 30%, transparent)`,
+              color: roleTheme.hex,
+              border: '1px solid'
+            }}
+          >
+            <IoSparkles className="h-3.5 w-3.5" />
+            {roleTheme.name}
+          </span>
+          {unreadCount > 0 && (
+            <Badge variant="error" className="ml-2">
+              {unreadCount} non lu{unreadCount > 1 ? 's' : ''}
+            </Badge>
+          )}
         </div>
-        {error && (
-          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-600">{error}</p>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          <IoLockClosed className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          <p className="text-xs text-slate-500 dark:text-zinc-400">Conversations chiffrées de bout en bout</p>
+        </div>
       </div>
+
+      {error && (
+        <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-lg">
+          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        </div>
+      )}
 
       <div className="flex-1 flex gap-6 overflow-hidden">
         {/* Conversations List */}
@@ -513,23 +551,39 @@ export const MessagerieSecuriseePage: React.FC = () => {
                     placeholder="Écrivez votre message..."
                     className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   />
-                  <Button disabled={!messageInput.trim()} onClick={handleSendMessage}>
+                  <Button disabled={!messageInput.trim()} onClick={handleSendMessage} style={{ backgroundColor: roleTheme.hex }}>
                     <IoSend className="h-5 w-5" />
                   </Button>
                 </div>
-                <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
+                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-2 flex items-center gap-1">
                   <IoLockClosed className="h-3 w-3" />
                   Messages chiffrés end-to-end (AES-256) - Conforme HDS
                 </p>
               </div>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-slate-400">
+            <div className="flex-1 flex items-center justify-center text-slate-400 dark:text-zinc-500">
               <p>Sélectionnez une conversation pour commencer</p>
             </div>
           )}
         </Card>
       </div>
-    </div>
+
+      {/* Footer */}
+      <footer className="pt-4 border-t border-slate-200/80 dark:border-zinc-800 shrink-0">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+            <span className="font-bold" style={{ color: roleTheme.hex }}>Kids'Med IA</span>
+            <span>•</span>
+            <span>© 2026 Tous droits réservés</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-zinc-400">
+            <a href="#" className="hover:opacity-70 transition-opacity" style={{ color: roleTheme.hex }}>Aide</a>
+            <a href="#" className="hover:opacity-70 transition-opacity" style={{ color: roleTheme.hex }}>Confidentialité</a>
+          </div>
+        </div>
+      </footer>
+      </motion.div>
+    </AppBackground>
   );
 };

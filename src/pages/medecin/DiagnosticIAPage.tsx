@@ -12,6 +12,7 @@ import {
   IoChevronForwardOutline,
   IoMedicalOutline,
   IoAlertCircleOutline,
+  IoSparkles,
 } from 'react-icons/io5';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,8 @@ import { diagnosticApi, enfantApi } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 import { analyserSymptomes, enregistrerDiagnostic, IS_DEMO_MODE as IA_DEMO_MODE } from '@/services/iaService';
 import type { Enfant } from '@/types';
+import { AppBackground } from '@/components/AppBackground';
+import { motion } from 'framer-motion';
 
 interface Message {
   id: string;
@@ -255,79 +258,88 @@ export const DiagnosticIAPage: React.FC = () => {
   // Affichage du loading initial
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 h-[calc(100vh-80px)] flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <IoPulseOutline className="h-12 w-12 animate-pulse text-sky-600 mx-auto" />
-          <p className="text-sm text-slate-500">Chargement des données...</p>
+      <AppBackground>
+        <div className="max-w-6xl mx-auto p-6 md:p-10 h-[calc(100vh-80px)] flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <IoPulseOutline className="h-12 w-12 animate-pulse text-cyan-600 dark:text-cyan-400 mx-auto" />
+            <p className="text-sm text-slate-500 dark:text-zinc-400">Chargement des données...</p>
+          </div>
         </div>
-      </div>
+      </AppBackground>
     );
   }
 
   // Affichage de l'erreur
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 h-[calc(100vh-80px)] flex items-center justify-center">
-        <Card className="max-w-md">
-          <CardContent className="p-6 text-center space-y-4">
-            <IoAlertCircleOutline className="h-12 w-12 text-rose-600 mx-auto" />
-            <div>
-              <h3 className="font-bold text-lg mb-2">Erreur</h3>
-              <p className="text-sm text-slate-500">{error}</p>
-            </div>
-            <Button onClick={() => window.location.reload()}>Réessayer</Button>
-          </CardContent>
-        </Card>
-      </div>
+      <AppBackground>
+        <div className="max-w-6xl mx-auto p-6 md:p-10 h-[calc(100vh-80px)] flex items-center justify-center">
+          <Card className="max-w-md rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
+            <CardContent className="p-6 text-center space-y-4">
+              <IoAlertCircleOutline className="h-12 w-12 text-rose-600 dark:text-rose-400 mx-auto" />
+              <div>
+                <h3 className="font-bold text-lg mb-2 text-slate-900 dark:text-zinc-100">Erreur</h3>
+                <p className="text-sm text-slate-500 dark:text-zinc-400">{error}</p>
+              </div>
+              <Button onClick={() => window.location.reload()} className="bg-cyan-600 hover:bg-cyan-700">Réessayer</Button>
+            </CardContent>
+          </Card>
+        </div>
+      </AppBackground>
     );
   }
 
   // Affichage si aucun enfant
   if (enfants.length === 0) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 h-[calc(100vh-80px)] flex items-center justify-center">
-        <Card className="max-w-md">
-          <CardContent className="p-6 text-center space-y-4">
-            <IoPersonOutline className="h-12 w-12 text-slate-400 mx-auto" />
-            <div>
-              <h3 className="font-bold text-lg mb-2">Aucun enfant trouvé</h3>
-              <p className="text-sm text-slate-500">
-                Aucun enfant n'est actuellement enregistré dans cet établissement.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <AppBackground>
+        <div className="max-w-6xl mx-auto p-6 md:p-10 h-[calc(100vh-80px)] flex items-center justify-center">
+          <Card className="max-w-md rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
+            <CardContent className="p-6 text-center space-y-4">
+              <IoPersonOutline className="h-12 w-12 text-slate-400 dark:text-zinc-500 mx-auto" />
+              <div>
+                <h3 className="font-bold text-lg mb-2 text-slate-900 dark:text-zinc-100">Aucun enfant trouvé</h3>
+                <p className="text-sm text-slate-500 dark:text-zinc-400">
+                  Aucun enfant n'est actuellement enregistré dans cet établissement.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </AppBackground>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 h-[calc(100vh-80px)] flex flex-col space-y-4 font-sans antialiased text-slate-900 dark:text-zinc-100">
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 h-[calc(100vh-80px)] flex flex-col space-y-6 text-slate-900 dark:text-zinc-100"
+      >
 
       {/* Header Médical & Certification */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 border border-sky-200/60 dark:border-sky-800/60">
-            <IoSparklesOutline className="h-6 w-6" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-lg font-bold tracking-tight">Assistant & Diagnostic IA Pédiatrique</h1>
-              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 text-[10px]">
-                DM classe I · Certifié ANS/HDS
-              </Badge>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-zinc-400">
-              Système d'aide à la décision clinique restreint au Médecin & RSAI
-            </p>
-          </div>
+      <div className="border-b border-slate-200/80 dark:border-zinc-800 pb-5 shrink-0">
+        <div className="flex items-center gap-2.5 mb-2">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight">Assistant & Diagnostic IA Pédiatrique</h1>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800 shadow-xs">
+            <IoSparkles className="h-3.5 w-3.5" />
+            IA Médicale
+          </span>
+          <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 text-[10px]">
+            DM classe I · Certifié ANS/HDS
+          </Badge>
         </div>
+        <p className="text-xs text-slate-500 dark:text-zinc-400 mb-3">
+          Système d'aide à la décision clinique restreint au Médecin & RSAI
+        </p>
 
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            className="h-8 text-xs"
+            className="h-8 text-xs border-slate-200 dark:border-zinc-800"
             onClick={() => setShowHistory(!showHistory)}
           >
             <IoDocumentTextOutline className="mr-1.5 h-3.5 w-3.5" />
@@ -345,7 +357,7 @@ export const DiagnosticIAPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 flex-1 min-h-0">
         
         {/* Sidebar Gauche: Sélecteur Enfant & Contexte Sanitaire */}
-        <Card className="lg:col-span-1 shadow-none border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex flex-col overflow-hidden">
+        <Card className="lg:col-span-1 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md flex flex-col overflow-hidden">
           <CardHeader className="p-3.5 border-b border-slate-100 dark:border-zinc-800">
             <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Lier un Patient / Dossier Enfant
@@ -361,7 +373,7 @@ export const DiagnosticIAPage: React.FC = () => {
                   onClick={() => setSelectedEnfantId(enfant._id)}
                   className={`w-full text-left p-2 rounded-lg border transition-all flex items-center justify-between ${
                     selectedEnfantId === enfant._id
-                      ? 'bg-sky-50 dark:bg-sky-950/40 border-sky-300 dark:border-sky-800'
+                      ? 'bg-cyan-50 dark:bg-cyan-950/40 border-cyan-300 dark:border-cyan-800'
                       : 'bg-slate-50/50 dark:bg-zinc-800/40 border-slate-200/60 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800'
                   }`}
                 >
@@ -462,12 +474,12 @@ export const DiagnosticIAPage: React.FC = () => {
         </Card>
 
         {/* Zone Principale de Dialogue IA */}
-        <Card className="lg:col-span-3 shadow-none border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex flex-col overflow-hidden">
+        <Card className="lg:col-span-3 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md flex flex-col overflow-hidden">
           
           {/* Header du Chat */}
           <div className="p-3.5 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50">
             <div className="flex items-center gap-2">
-              <IoMedicalOutline className="h-4 w-4 text-sky-600" />
+              <IoMedicalOutline className="h-4 w-4 text-cyan-600" />
               <span className="text-xs font-bold">Session d'Analyse Clinique</span>
               {selectedEnfant && (
                 <Badge variant="secondary" className="text-[10px] font-mono">
@@ -489,7 +501,7 @@ export const DiagnosticIAPage: React.FC = () => {
                 className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {message.role === 'assistant' && (
-                  <Avatar className="h-8 w-8 shrink-0 bg-sky-100 border border-sky-300 text-sky-800 dark:bg-sky-950 dark:border-sky-800 dark:text-sky-300">
+                  <Avatar className="h-8 w-8 shrink-0 bg-cyan-100 border border-cyan-300 text-cyan-800 dark:bg-cyan-950 dark:border-cyan-800 dark:text-cyan-300">
                     <AvatarFallback className="bg-transparent">
                       <IoSparklesOutline className="h-4 w-4" />
                     </AvatarFallback>
@@ -498,7 +510,7 @@ export const DiagnosticIAPage: React.FC = () => {
 
                 <div className={`max-w-[80%] rounded-xl p-3.5 text-xs leading-relaxed space-y-2 ${
                   message.role === 'user'
-                    ? 'bg-sky-600 text-white rounded-br-none'
+                    ? 'bg-cyan-600 text-white rounded-br-none'
                     : 'bg-slate-50 dark:bg-zinc-800/80 border border-slate-200/80 dark:border-zinc-700/80 text-slate-900 dark:text-zinc-100 rounded-bl-none'
                 }`}>
                   {message.urgencyLevel === 'vigilance' && (
@@ -511,7 +523,7 @@ export const DiagnosticIAPage: React.FC = () => {
                   <p className="whitespace-pre-wrap">{message.content}</p>
 
                   <p className={`text-[10px] font-mono text-right ${
-                    message.role === 'user' ? 'text-sky-100' : 'text-slate-400'
+                    message.role === 'user' ? 'text-cyan-100' : 'text-slate-400'
                   }`}>
                     {message.timestamp.toLocaleTimeString('fr-FR', {
                       hour: '2-digit',
@@ -532,13 +544,13 @@ export const DiagnosticIAPage: React.FC = () => {
 
             {isLoading && (
               <div className="flex gap-3 items-center">
-                <Avatar className="h-8 w-8 shrink-0 bg-sky-100 border border-sky-300 text-sky-800">
+                <Avatar className="h-8 w-8 shrink-0 bg-cyan-100 border border-cyan-300 text-cyan-800">
                   <AvatarFallback className="bg-transparent">
                     <IoSparklesOutline className="h-4 w-4 animate-spin" />
                   </AvatarFallback>
                 </Avatar>
                 <div className="p-3 bg-slate-50 dark:bg-zinc-800 rounded-xl border border-slate-200/80 dark:border-zinc-700 text-xs text-slate-500 font-mono flex items-center gap-2">
-                  <IoPulseOutline className="h-4 w-4 animate-pulse text-sky-600" />
+                  <IoPulseOutline className="h-4 w-4 animate-pulse text-cyan-600" />
                   <span>Analyse des bases de données médicales en cours...</span>
                 </div>
               </div>
@@ -585,12 +597,12 @@ export const DiagnosticIAPage: React.FC = () => {
                 onKeyPress={handleKeyPress}
                 placeholder={`Décrivez les observations cliniques concernant ${selectedEnfant.prenom}...`}
                 rows={2}
-                className="flex-1 p-2.5 text-xs rounded-lg bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 focus:outline-none focus:ring-1 focus:ring-sky-500 resize-none"
+                className="flex-1 p-2.5 text-xs rounded-lg bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 focus:outline-none focus:ring-1 focus:ring-cyan-500 resize-none"
               />
               <Button
                 onClick={() => handleSend()}
                 disabled={!input.trim() || isLoading}
-                className="h-auto py-3 px-4 bg-sky-600 hover:bg-sky-700 text-white"
+                className="h-auto py-3 px-4 bg-cyan-600 hover:bg-cyan-700 text-white"
               >
                 <IoSendOutline className="h-4 w-4" />
               </Button>
@@ -608,6 +620,22 @@ export const DiagnosticIAPage: React.FC = () => {
         </Card>
 
       </div>
-    </div>
+
+      {/* Footer */}
+      <footer className="pt-4 border-t border-slate-200/80 dark:border-zinc-800 shrink-0">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+            <span className="font-bold text-cyan-600 dark:text-cyan-400">Kids'Med IA</span>
+            <span>•</span>
+            <span>© 2026 Tous droits réservés</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-zinc-400">
+            <a href="#" className="hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">Aide</a>
+            <a href="#" className="hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">Confidentialité</a>
+          </div>
+        </div>
+      </footer>
+      </motion.div>
+    </AppBackground>
   );
 };

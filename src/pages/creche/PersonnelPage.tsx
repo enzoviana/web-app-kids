@@ -29,6 +29,7 @@ import { personnelApi } from '@/services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { AppBackground } from '@/components/AppBackground';
 
 const DEFAULT_ETABLISSEMENT_ID = 'test-creche-001';
 
@@ -220,58 +221,61 @@ export const PersonnelPage: React.FC = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="p-8 min-h-screen bg-gradient-to-br from-slate-50 via-teal-50/20 to-indigo-50/20 dark:from-zinc-950 dark:via-zinc-900/50 dark:to-zinc-950 flex items-center justify-center">
-        <div className="text-center">
-          <IoReloadOutline className="h-12 w-12 text-teal-500 mx-auto mb-3 animate-spin" />
-          <p className="text-sm text-slate-600 dark:text-zinc-400">Chargement du personnel...</p>
+      <AppBackground>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center space-y-4">
+            <IoReloadOutline className="h-12 w-12 text-lime-600 mx-auto animate-spin" />
+            <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">Chargement du personnel...</p>
+          </div>
         </div>
-      </div>
+      </AppBackground>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="p-8 space-y-6 font-sans antialiased text-slate-900 dark:text-zinc-100 bg-gradient-to-br from-slate-50 via-teal-50/20 to-indigo-50/20 dark:from-zinc-950 dark:via-zinc-900/50 dark:to-zinc-950 min-h-screen"
-    >
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black tracking-tight">Équipe & Personnel</h1>
-          <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1">
-            Gérez votre équipe et suivez les qualifications
-          </p>
-        </div>
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800 pb-5">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight">Équipe & Personnel</h1>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+              Gérez votre équipe et suivez les qualifications
+            </p>
+          </div>
 
-        <Button
-          size="sm"
-          onClick={openCreateModal}
-          className="h-11 px-5 text-xs font-bold rounded-2xl bg-teal-600 hover:bg-teal-700 text-white transition-all shadow-md cursor-pointer"
-        >
-          <IoAddOutline className="h-4 w-4 mr-2" />
-          Ajouter un membre
-        </Button>
-      </div>
+          <Button
+            size="sm"
+            onClick={openCreateModal}
+            className="h-10 px-5 text-xs font-bold rounded-2xl bg-lime-700 hover:bg-lime-600 text-white transition-all cursor-pointer"
+          >
+            <IoAddOutline className="h-4 w-4 mr-2" />
+            Ajouter un membre
+          </Button>
+        </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md">
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase">Total Personnel</p>
                 <p className="text-2xl font-black mt-1">{stats.total}</p>
               </div>
-              <div className="h-12 w-12 rounded-2xl bg-teal-50 dark:bg-teal-950/30 flex items-center justify-center border border-teal-200 dark:border-teal-800">
-                <IoPeopleOutline className="h-6 w-6 text-teal-600" />
+              <div className="h-12 w-12 rounded-2xl bg-lime-50 dark:bg-lime-950/30 flex items-center justify-center border border-lime-200 dark:border-lime-800">
+                <IoPeopleOutline className="h-6 w-6 text-lime-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md">
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
@@ -285,7 +289,7 @@ export const PersonnelPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md">
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
@@ -299,7 +303,7 @@ export const PersonnelPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md">
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
@@ -315,7 +319,7 @@ export const PersonnelPage: React.FC = () => {
       </div>
 
       {/* Filtres */}
-      <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
+      <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md">
         <CardContent className="p-5">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Recherche */}
@@ -372,7 +376,7 @@ export const PersonnelPage: React.FC = () => {
 
       {/* Liste du personnel */}
       {error && (
-        <Card className="rounded-3xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20">
+        <Card className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20">
           <CardContent className="p-4 flex items-center gap-3">
             <IoAlertCircleOutline className="h-5 w-5 text-red-600" />
             <p className="text-sm text-red-900 dark:text-red-100">{error}</p>
@@ -381,7 +385,7 @@ export const PersonnelPage: React.FC = () => {
       )}
 
       {filteredPersonnels.length === 0 ? (
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md">
           <CardContent className="p-16 text-center">
             <IoPersonOutline className="h-16 w-16 text-slate-300 dark:text-zinc-600 mx-auto mb-4" />
             <p className="text-sm text-slate-500 dark:text-zinc-400 font-medium">
@@ -402,7 +406,7 @@ export const PersonnelPage: React.FC = () => {
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md hover:shadow-lg transition-all">
+                <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md hover:shadow-lg transition-all">
                   <CardContent className="p-6 space-y-4">
                     {/* Header avec avatar */}
                     <div className="flex items-start justify-between gap-3">
@@ -521,11 +525,11 @@ export const PersonnelPage: React.FC = () => {
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl max-w-2xl w-full shadow-2xl my-8 max-h-[90vh] flex flex-col"
+            className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl max-w-2xl w-full shadow-2xl my-8 max-h-[90vh] flex flex-col"
           >
             <div className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-950/50 text-teal-600 border border-teal-200 dark:border-teal-800">
+                <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-950/50 text-lime-600 border border-lime-200 dark:border-lime-800">
                   <IoAddOutline className="h-5 w-5" />
                 </div>
                 <h3 className="text-sm font-black tracking-tight">Ajouter un membre du personnel</h3>
@@ -671,7 +675,7 @@ export const PersonnelPage: React.FC = () => {
                   id="isActive"
                   checked={formData.isActive}
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="h-4 w-4 rounded text-teal-600 cursor-pointer"
+                  className="h-4 w-4 rounded text-lime-600 cursor-pointer"
                 />
                 <Label htmlFor="isActive" className="font-bold text-slate-700 dark:text-zinc-300 cursor-pointer">
                   Personnel actif (en poste)
@@ -693,7 +697,7 @@ export const PersonnelPage: React.FC = () => {
                 type="button"
                 disabled={isSaving || !formData.prenom || !formData.nom || !formData.email || !formData.dateEmbauche}
                 onClick={handleCreate}
-                className="h-10 text-xs font-bold rounded-2xl bg-teal-600 hover:bg-teal-700 text-white cursor-pointer shadow-md"
+                className="h-10 text-xs font-bold rounded-2xl bg-lime-700 hover:bg-lime-600 text-white cursor-pointer shadow-md"
               >
                 {isSaving ? 'Création...' : 'Créer le membre'}
               </Button>
@@ -709,11 +713,11 @@ export const PersonnelPage: React.FC = () => {
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl max-w-2xl w-full shadow-2xl my-8 max-h-[90vh] flex flex-col"
+            className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl max-w-2xl w-full shadow-2xl my-8 max-h-[90vh] flex flex-col"
           >
             <div className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-950/50 text-teal-600 border border-teal-200 dark:border-teal-800">
+                <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-950/50 text-lime-600 border border-lime-200 dark:border-lime-800">
                   <IoPencilOutline className="h-5 w-5" />
                 </div>
                 <h3 className="text-sm font-black tracking-tight">Modifier {selectedPersonnel?.prenom} {selectedPersonnel?.nom}</h3>
@@ -862,7 +866,7 @@ export const PersonnelPage: React.FC = () => {
                   id="edit-isActive"
                   checked={formData.isActive}
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="h-4 w-4 rounded text-teal-600 cursor-pointer"
+                  className="h-4 w-4 rounded text-lime-600 cursor-pointer"
                 />
                 <Label htmlFor="edit-isActive" className="font-bold text-slate-700 dark:text-zinc-300 cursor-pointer">
                   Personnel actif (en poste)
@@ -887,7 +891,7 @@ export const PersonnelPage: React.FC = () => {
                 type="button"
                 disabled={isSaving || !formData.prenom || !formData.nom || !formData.email || !formData.dateEmbauche}
                 onClick={handleEdit}
-                className="h-10 text-xs font-bold rounded-2xl bg-teal-600 hover:bg-teal-700 text-white cursor-pointer shadow-md"
+                className="h-10 text-xs font-bold rounded-2xl bg-lime-700 hover:bg-lime-600 text-white cursor-pointer shadow-md"
               >
                 {isSaving ? 'Enregistrement...' : 'Enregistrer les modifications'}
               </Button>
@@ -903,7 +907,7 @@ export const PersonnelPage: React.FC = () => {
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl max-w-md w-full shadow-2xl"
+            className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl max-w-md w-full shadow-2xl"
           >
             <div className="p-6 space-y-4">
               <div className="flex items-center gap-3">
@@ -953,6 +957,28 @@ export const PersonnelPage: React.FC = () => {
           </motion.div>
         </div>
       )}
+
+      {/* Professional Footer */}
+      <footer className="mt-16 pt-8 border-t border-slate-200/80 dark:border-zinc-800">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+            <span className="font-bold text-lime-600 dark:text-lime-400">Kids'Med IA</span>
+            <span>•</span>
+            <span>© 2026 Tous droits réservés</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-zinc-400">
+            <a href="#" className="hover:text-lime-600 dark:hover:text-lime-400 transition-colors font-medium">
+              Centre d'aide
+            </a>
+            <span>•</span>
+            <a href="#" className="hover:text-lime-600 dark:hover:text-lime-400 transition-colors font-medium">
+              Documentation
+            </a>
+          </div>
+        </div>
+      </footer>
+
     </motion.div>
+    </AppBackground>
   );
 };

@@ -3,65 +3,146 @@
 @tailwind utilities;
 
 @layer base {
+  /* Kids'Med IA Design System - Light Mode */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Surfaces */
+    --surface: 210 40% 98%;                    /* #F8FAFC */
+    --on-surface: 222 84% 9%;                  /* #0F172A */
+    --surface-secondary: 0 0% 100%;            /* #FFFFFF */
+    --surface-tertiary: 210 40% 96%;           /* #F1F5F9 */
 
+    /* Background & Foreground */
+    --background: 210 40% 98%;
+    --foreground: 222 84% 9%;
+
+    /* Cards & Popovers */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
+    --card-foreground: 222 84% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 222 84% 9%;
 
-    --primary: 238 71% 59%;
+    /* Brand Colors - Kids'Med IA */
+    --cyan: 202 100% 50%;                      /* #0099FF - Médecin/Parent */
+    --lime: 88 45% 53%;                        /* #8BC34A - Crèche */
+    --magenta: 333 100% 50%;                   /* #FF007A - RSAI */
+
+    /* Primary (fallback indigo) */
+    --primary: 238 71% 59%;                    /* #4F46E5 */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 215 16.3% 46.9%;
+    /* Secondary (neutral slate) */
+    --secondary: 215 16% 47%;                  /* #64748B */
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Success (lime-based) */
+    --success: 88 45% 53%;                     /* #8BC34A */
+    --success-foreground: 0 0% 100%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Warning */
+    --warning: 45 100% 50%;                    /* #FFB300 */
+    --warning-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 238 71% 59%;
+    /* Error (magenta-based) */
+    --error: 333 100% 50%;                     /* #FF007A */
+    --error-foreground: 0 0% 100%;
 
-    --radius: 0.5rem;
+    /* Info (cyan-based) */
+    --info: 202 100% 50%;                      /* #0099FF */
+    --info-foreground: 0 0% 100%;
+
+    /* Muted */
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    /* Accent */
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+
+    /* Borders */
+    --border: 214 32% 91%;                     /* #E2E8F0 */
+    --border-strong: 215 20% 82%;              /* #CBD5E1 */
+    --input: 214 32% 91%;
+    --ring: 202 100% 50%;                      /* Cyan ring */
+
+    /* Radius */
+    --radius: 0.75rem;                         /* 12px base */
   }
 
+  /* Kids'Med IA Design System - Dark Mode */
   .dark {
-    --background: 222.2 84% 4.9%;
+    /* Surfaces */
+    --surface: 220 50% 5%;                     /* #0A0F17 */
+    --on-surface: 210 40% 98%;                 /* #F8FAFC */
+    --surface-secondary: 220 39% 11%;          /* #111827 */
+    --surface-tertiary: 217 33% 18%;           /* #1E293B */
+
+    /* Background & Foreground */
+    --background: 220 50% 5%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    /* Cards & Popovers */
+    --card: 220 39% 11%;
     --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
+    --popover: 220 39% 11%;
     --popover-foreground: 210 40% 98%;
 
+    /* Brand Colors - identiques en dark */
+    --cyan: 202 100% 50%;                      /* #0099FF */
+    --lime: 88 45% 53%;                        /* #8BC34A */
+    --magenta: 333 100% 50%;                   /* #FF007A */
+
+    /* Primary */
     --primary: 238 71% 59%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    /* Secondary */
+    --secondary: 217 33% 18%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    /* Success (lime-based, plus clair) */
+    --success: 88 54% 60%;                     /* #9CD35A */
+    --success-foreground: 220 50% 5%;
 
-    --accent: 217.2 32.6% 17.5%;
+    /* Warning (plus clair) */
+    --warning: 44 100% 65%;                    /* #FFC24B */
+    --warning-foreground: 38 100% 10%;
+
+    /* Error (magenta-based, plus clair) */
+    --error: 333 100% 62%;                     /* #FF3D95 */
+    --error-foreground: 0 0% 100%;
+
+    /* Info (cyan-based, plus clair) */
+    --info: 202 100% 64%;                      /* #4FB6FF */
+    --info-foreground: 220 50% 5%;
+
+    /* Muted */
+    --muted: 217 33% 18%;
+    --muted-foreground: 215 20% 65%;
+
+    /* Accent */
+    --accent: 217 33% 18%;
     --accent-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 238 71% 59%;
+    /* Borders */
+    --border: 217 33% 18%;                     /* #1E293B */
+    --border-strong: 216 34% 27%;              /* #334155 */
+    --input: 217 33% 18%;
+    --ring: 202 100% 50%;                      /* Cyan ring */
   }
 
+  /* Typography & Base Styles */
   body {
-    @apply bg-slate-50 text-slate-900;
+    @apply bg-slate-50 text-slate-900 dark:bg-[#0A0F17] dark:text-slate-50;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Headings avec Plus Jakarta Sans */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    font-weight: 600;
   }
 
   /* Scrollbar styling */
@@ -74,36 +155,181 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-slate-300 rounded-full;
+    @apply bg-slate-300 dark:bg-slate-700 rounded-full;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-400;
+    @apply bg-slate-400 dark:bg-slate-600;
+  }
+
+  /* Dark mode scrollbar */
+  .dark ::-webkit-scrollbar-thumb {
+    @apply bg-slate-700;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-600;
   }
 }
 
 @layer components {
+  /* Glassmorphism Cards */
   .glass-card {
-    @apply bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-lg shadow-sm;
+    @apply bg-white/80 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/60 dark:border-slate-700/50 rounded-2xl shadow-soft;
   }
 
-  .glass-card-dark {
-    @apply bg-white/10 backdrop-blur-sm border border-white/25 rounded-lg;
+  .glass-card-strong {
+    @apply bg-white/90 dark:bg-slate-900/60 backdrop-blur-lg border border-slate-200/80 dark:border-slate-700/60 rounded-2xl shadow-card;
   }
 
+  /* Gradient Buttons */
   .btn-gradient-cyan {
-    @apply bg-gradient-to-br from-primary to-primary/80 text-white font-semibold rounded-full shadow-md transition-all;
+    background: linear-gradient(to bottom right, #0099FF, #0080DD);
+    @apply text-white font-semibold rounded-xl shadow-lg
+           transition-all duration-200 hover:shadow-xl;
+    box-shadow: 0 10px 15px -3px rgba(0, 153, 255, 0.2);
+  }
+
+  .btn-gradient-cyan:hover {
+    background: linear-gradient(to bottom right, #0080DD, #0066BB);
+    box-shadow: 0 20px 25px -5px rgba(0, 153, 255, 0.3);
+  }
+
+  .btn-gradient-lime {
+    background: linear-gradient(to bottom right, #8BC34A, #7CB342);
+    @apply text-white font-semibold rounded-xl shadow-lg
+           transition-all duration-200 hover:shadow-xl;
+    box-shadow: 0 10px 15px -3px rgba(139, 195, 74, 0.2);
+  }
+
+  .btn-gradient-lime:hover {
+    background: linear-gradient(to bottom right, #7CB342, #689F38);
+    box-shadow: 0 20px 25px -5px rgba(139, 195, 74, 0.3);
   }
 
   .btn-gradient-magenta {
-    @apply bg-gradient-to-br from-error to-error/80 text-white font-semibold rounded-full shadow-md transition-all;
+    background: linear-gradient(to bottom right, #FF007A, #E6006E);
+    @apply text-white font-semibold rounded-xl shadow-lg
+           transition-all duration-200 hover:shadow-xl;
+    box-shadow: 0 10px 15px -3px rgba(255, 0, 122, 0.2);
   }
 
-  .badge-glow {
-    @apply rounded-full border backdrop-blur-sm shadow-lg;
+  .btn-gradient-magenta:hover {
+    background: linear-gradient(to bottom right, #E6006E, #CC0062);
+    box-shadow: 0 20px 25px -5px rgba(255, 0, 122, 0.3);
   }
 
-  /* Neon glow animation */
+  /* Badge avec Glow */
+  .badge-glow-cyan {
+    @apply rounded-full px-3 py-1;
+    background-color: #E6F7FF;
+    color: #0066BB;
+    border: 1px solid #BAE7FF;
+    box-shadow: 0 0 20px rgba(0, 153, 255, 0.4);
+  }
+
+  .dark .badge-glow-cyan {
+    background-color: rgba(0, 153, 255, 0.1);
+    color: #69C0FF;
+    border-color: rgba(0, 153, 255, 0.3);
+  }
+
+  .badge-glow-lime {
+    @apply rounded-full px-3 py-1;
+    background-color: #F1F8E9;
+    color: #689F38;
+    border: 1px solid #C5E1A5;
+    box-shadow: 0 0 20px rgba(139, 195, 74, 0.4);
+  }
+
+  .dark .badge-glow-lime {
+    background-color: rgba(139, 195, 74, 0.1);
+    color: #AED581;
+    border-color: rgba(139, 195, 74, 0.3);
+  }
+
+  .badge-glow-magenta {
+    @apply rounded-full px-3 py-1;
+    background-color: #FFE6F2;
+    color: #CC0062;
+    border: 1px solid #FF94C4;
+    box-shadow: 0 0 20px rgba(255, 0, 122, 0.4);
+  }
+
+  .dark .badge-glow-magenta {
+    background-color: rgba(255, 0, 122, 0.1);
+    color: #FF6BAD;
+    border-color: rgba(255, 0, 122, 0.3);
+  }
+
+  /* Status Indicators */
+  .status-badge {
+    @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-sm;
+  }
+
+  .status-badge-success {
+    @apply status-badge;
+    background-color: #F1F8E9;
+    color: #689F38;
+    border: 1px solid #C5E1A5;
+  }
+
+  .dark .status-badge-success {
+    background-color: rgba(139, 195, 74, 0.1);
+    color: #AED581;
+    border-color: rgba(139, 195, 74, 0.3);
+  }
+
+  .status-badge-warning {
+    @apply status-badge;
+    background-color: #FFF8E1;
+    color: #FF8F00;
+    border: 1px solid #FFECB3;
+  }
+
+  .dark .status-badge-warning {
+    background-color: rgba(255, 179, 0, 0.1);
+    color: #FFC24B;
+    border-color: rgba(255, 179, 0, 0.3);
+  }
+
+  .status-badge-error {
+    @apply status-badge;
+    background-color: #FFE6F2;
+    color: #CC0062;
+    border: 1px solid #FF94C4;
+  }
+
+  .dark .status-badge-error {
+    background-color: rgba(255, 0, 122, 0.1);
+    color: #FF6BAD;
+    border-color: rgba(255, 0, 122, 0.3);
+  }
+
+  .status-badge-info {
+    @apply status-badge;
+    background-color: #E6F7FF;
+    color: #0066BB;
+    border: 1px solid #BAE7FF;
+  }
+
+  .dark .status-badge-info {
+    background-color: rgba(0, 153, 255, 0.1);
+    color: #69C0FF;
+    border-color: rgba(0, 153, 255, 0.3);
+  }
+
+  /* Hero Cards avec overlay gradient */
+  .hero-card {
+    @apply relative rounded-2xl overflow-hidden shadow-lg;
+  }
+
+  .hero-card::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-transparent pointer-events-none;
+  }
+
+  /* Neon glow animations */
   @keyframes neon-pulse {
     0%, 100% {
       opacity: 1;
@@ -111,20 +337,41 @@
     }
     50% {
       opacity: 0.8;
-      filter: drop-shadow(0 0 12px currentColor);
+      filter: drop-shadow(0 0 16px currentColor);
     }
   }
 
   .neon-pulse {
     animation: neon-pulse 2s ease-in-out infinite;
   }
+
+  @keyframes neon-pulse-slow {
+    0%, 100% {
+      opacity: 1;
+      box-shadow: 0 0 10px currentColor;
+    }
+    50% {
+      opacity: 0.85;
+      box-shadow: 0 0 20px currentColor;
+    }
+  }
+
+  .neon-pulse-slow {
+    animation: neon-pulse-slow 3s ease-in-out infinite;
+  }
 }
 
 @layer utilities {
+  /* Text utilities */
   .text-shadow-glow {
     text-shadow: 0 0 20px currentColor;
   }
 
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Scrollbar utilities */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -132,5 +379,36 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* Blur utilities */
+  .backdrop-blur-xs {
+    backdrop-filter: blur(2px);
+  }
+
+  .backdrop-blur-glass {
+    backdrop-filter: blur(12px) saturate(180%);
+  }
+
+  /* Gradient text */
+  .text-gradient-cyan {
+    background: linear-gradient(to right, #0099FF, #0080DD);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-gradient-lime {
+    background: linear-gradient(to right, #8BC34A, #7CB342);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-gradient-magenta {
+    background: linear-gradient(to right, #FF007A, #E6006E);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 }

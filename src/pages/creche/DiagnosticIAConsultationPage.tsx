@@ -16,6 +16,8 @@ import {
 import { diagnosticApi, enfantApi } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 import type { Enfant } from '@/types';
+import { AppBackground } from '@/components/AppBackground';
+import { motion } from 'framer-motion';
 
 interface DiagnosticSummary {
   _id: string;
@@ -110,79 +112,87 @@ export const DiagnosticIAConsultationPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6">
-        <Card>
-          <CardContent className="p-12 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-gray-600">Chargement...</p>
-          </CardContent>
-        </Card>
-      </div>
+      <AppBackground>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lime-600 mx-auto"></div>
+            <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">Chargement...</p>
+          </div>
+        </div>
+      </AppBackground>
     );
   }
 
   return (
-    <div className="container mx-auto p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-zinc-800 pb-5">
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-3">
-              <IoSparklesOutline className="text-primary" />
-              Consultation Diagnostics IA
-            </h1>
-            <p className="text-gray-600 mt-1">Visualisation des analyses médicales (Mode lecture seule)</p>
-          </div>
-          <Badge variant="secondary" className="text-sm">
-            <IoEyeOutline className="mr-1" />
-            Consultation uniquement
-          </Badge>
-        </div>
-      </div>
-
-      {/* Info mode lecture seule */}
-      <Card className="mb-6 border-blue-200 bg-blue-50">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <IoShieldCheckmarkOutline className="text-2xl text-blue-600 flex-shrink-0 mt-1" />
-            <div className="text-sm text-blue-800">
-              <p className="font-semibold mb-1">Mode consultation crèche</p>
-              <p>
-                En tant que personnel de crèche, vous pouvez <strong>consulter</strong> les diagnostics IA
-                créés par les médecins pour prendre connaissance des avis médicaux.
-              </p>
-              <p className="mt-1">
-                <strong>Seuls les médecins et RSAI peuvent créer de nouveaux diagnostics.</strong>
-              </p>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-3">
+                <IoSparklesOutline className="text-lime-600 dark:text-lime-400" />
+                Consultation Diagnostics IA
+              </h1>
+              <Badge variant="secondary" className="text-[10px] font-bold bg-lime-50 dark:bg-lime-950/50 text-lime-700 dark:text-lime-400 border border-lime-200 dark:border-lime-800">
+                <IoEyeOutline className="mr-1 h-3 w-3" />
+                Lecture seule
+              </Badge>
             </div>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+              Visualisation des analyses médicales créées par les médecins
+            </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Sélection enfant */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <IoPersonOutline />
-              Enfants
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {enfants.length === 0 ? (
-              <p className="text-gray-500 text-sm">Aucun enfant dans cet établissement</p>
-            ) : (
-              <div className="space-y-2">
-                {enfants.map((enfant) => (
-                  <button
-                    key={enfant._id}
-                    onClick={() => setSelectedEnfantId(enfant._id)}
-                    className={`w-full p-3 rounded-lg border transition-all text-left ${
-                      selectedEnfantId === enfant._id
-                        ? 'border-primary bg-primary/5'
-                        : 'border-gray-200 hover:border-primary/50'
-                    }`}
-                  >
+        {/* Info mode lecture seule */}
+        <Card className="rounded-xl border border-lime-200 dark:border-lime-800 bg-lime-50/50 dark:bg-lime-950/20 backdrop-blur-md">
+          <CardContent className="p-5">
+            <div className="flex items-start gap-3">
+              <IoShieldCheckmarkOutline className="text-2xl text-lime-600 dark:text-lime-400 flex-shrink-0 mt-1" />
+              <div className="text-sm text-slate-700 dark:text-zinc-300">
+                <p className="font-extrabold mb-1 text-slate-900 dark:text-zinc-100">Mode consultation crèche</p>
+                <p>
+                  En tant que personnel de crèche, vous pouvez <strong>consulter</strong> les diagnostics IA
+                  créés par les médecins pour prendre connaissance des avis médicaux.
+                </p>
+                <p className="mt-1">
+                  <strong>Seuls les médecins et RSAI peuvent créer de nouveaux diagnostics.</strong>
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Sélection enfant */}
+          <Card className="lg:col-span-1 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg font-extrabold">
+                <IoPersonOutline className="text-lime-600 dark:text-lime-400" />
+                Enfants
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {enfants.length === 0 ? (
+                <p className="text-slate-500 dark:text-zinc-400 text-sm">Aucun enfant dans cet établissement</p>
+              ) : (
+                <div className="space-y-2">
+                  {enfants.map((enfant) => (
+                    <button
+                      key={enfant._id}
+                      onClick={() => setSelectedEnfantId(enfant._id)}
+                      className={`w-full p-3 rounded-xl border transition-all text-left ${
+                        selectedEnfantId === enfant._id
+                          ? 'border-lime-500 bg-lime-50/50 dark:bg-lime-950/20'
+                          : 'border-slate-200 dark:border-zinc-700 hover:border-lime-500/50'
+                      }`}
+                    >
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10">
                         <AvatarImage src={enfant.photo} />
@@ -205,34 +215,34 @@ export const DiagnosticIAConsultationPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Historique diagnostics */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <IoDocumentTextOutline />
-              Diagnostics IA de {selectedEnfant?.prenom || 'l\'enfant'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loadingDiagnostics ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                <p className="mt-4 text-gray-600 text-sm">Chargement des diagnostics...</p>
-              </div>
-            ) : diagnostics.length === 0 ? (
-              <div className="text-center py-12">
-                <IoMedicalOutline className="text-6xl text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600">Aucun diagnostic IA disponible pour cet enfant</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  Les diagnostics apparaîtront ici une fois créés par un médecin
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {diagnostics.map((diagnostic) => (
-                  <Card key={diagnostic._id} className="border-l-4" style={{
-                    borderLeftColor: getUrgencyColor(diagnostic.niveauUrgence),
-                  }}>
+          {/* Historique diagnostics */}
+          <Card className="lg:col-span-2 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg font-extrabold">
+                <IoDocumentTextOutline className="text-lime-600 dark:text-lime-400" />
+                Diagnostics IA de {selectedEnfant?.prenom || 'l\'enfant'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loadingDiagnostics ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-lime-600 mx-auto"></div>
+                  <p className="mt-4 text-slate-600 dark:text-zinc-400 text-sm">Chargement des diagnostics...</p>
+                </div>
+              ) : diagnostics.length === 0 ? (
+                <div className="text-center py-12">
+                  <IoMedicalOutline className="text-6xl text-slate-300 dark:text-zinc-700 mx-auto mb-4" />
+                  <p className="text-slate-600 dark:text-zinc-400">Aucun diagnostic IA disponible pour cet enfant</p>
+                  <p className="text-sm text-slate-500 dark:text-zinc-500 mt-2">
+                    Les diagnostics apparaîtront ici une fois créés par un médecin
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {diagnostics.map((diagnostic) => (
+                    <Card key={diagnostic._id} className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-l-4" style={{
+                      borderLeftColor: getUrgencyColor(diagnostic.niveauUrgence),
+                    }}>
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-2">
@@ -295,18 +305,40 @@ export const DiagnosticIAConsultationPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* Footer info */}
-      <Card className="mt-6 border-gray-200">
-        <CardContent className="p-4">
-          <div className="flex items-center gap-3 text-sm text-gray-600">
-            <IoShieldCheckmarkOutline className="text-xl" />
-            <p>
-              <strong>Dispositif médical classe I</strong> · Certifié ANS/HDS ·
-              Les diagnostics IA sont des aides à la décision et ne remplacent pas l'avis d'un médecin
-            </p>
+        {/* Footer info */}
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-zinc-400">
+              <IoShieldCheckmarkOutline className="text-xl text-lime-600 dark:text-lime-400" />
+              <p>
+                <strong>Dispositif médical classe I</strong> · Certifié ANS/HDS ·
+                Les diagnostics IA sont des aides à la décision et ne remplacent pas l'avis d'un médecin
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Professional Footer */}
+        <footer className="mt-16 pt-8 border-t border-slate-200/80 dark:border-zinc-800">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+              <span className="font-bold text-lime-600 dark:text-lime-400">Kids'Med IA</span>
+              <span>•</span>
+              <span>© 2026 Tous droits réservés</span>
+            </div>
+            <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-zinc-400">
+              <a href="#" className="hover:text-lime-600 dark:hover:text-lime-400 transition-colors font-medium">
+                Centre d'aide
+              </a>
+              <span>•</span>
+              <a href="#" className="hover:text-lime-600 dark:hover:text-lime-400 transition-colors font-medium">
+                Documentation
+              </a>
+            </div>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </footer>
+
+      </motion.div>
+    </AppBackground>
   );
 };

@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { AppBackground } from '@/components/AppBackground';
 
 interface Note {
   id: string;
@@ -224,79 +225,88 @@ export const NotesPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="p-8 min-h-screen bg-gradient-to-br from-slate-50 via-fuchsia-50/20 to-indigo-50/20 dark:from-zinc-950 dark:via-zinc-900/50 dark:to-zinc-950 flex items-center justify-center">
-        <div className="text-center">
-          <IoReloadOutline className="h-12 w-12 text-fuchsia-500 mx-auto mb-3 animate-spin" />
-          <p className="text-sm text-slate-600 dark:text-zinc-400">Chargement des notes...</p>
+      <AppBackground>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <IoReloadOutline className="h-12 w-12 text-fuchsia-600 mx-auto mb-3 animate-spin" />
+            <p className="text-sm font-medium text-slate-600 dark:text-zinc-400">Chargement des notes...</p>
+          </div>
         </div>
-      </div>
+      </AppBackground>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="p-8 space-y-6 bg-gradient-to-br from-slate-50 via-fuchsia-50/20 to-indigo-50/20 dark:from-zinc-950 dark:via-zinc-900/50 dark:to-zinc-950 min-h-screen text-slate-900 dark:text-zinc-100 font-sans antialiased"
-    >
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black tracking-tight">Notes & Observations</h1>
-          <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1">
-            Journal de vos observations sur les établissements
-          </p>
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800 pb-5">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight">Notes & Observations</h1>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-fuchsia-50 dark:bg-fuchsia-950/50 text-fuchsia-700 dark:text-fuchsia-400 border border-fuchsia-200 dark:border-fuchsia-800 shadow-xs">
+                <IoDocumentTextOutline className="h-3.5 w-3.5" />
+                Module Notes
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+              Journal de vos observations sur les établissements
+            </p>
+          </div>
+
+          <Button
+            size="sm"
+            onClick={openCreateModal}
+            className="h-10 px-5 text-xs font-bold rounded-2xl bg-fuchsia-700 hover:bg-fuchsia-600 text-white transition-all shadow-md cursor-pointer"
+          >
+            <IoAddOutline className="h-4 w-4 mr-2" />
+            Nouvelle note
+          </Button>
         </div>
 
-        <Button
-          size="sm"
-          onClick={openCreateModal}
-          className="h-11 px-5 text-xs font-bold rounded-2xl bg-fuchsia-600 hover:bg-fuchsia-700 text-white transition-all shadow-md cursor-pointer"
-        >
-          <IoAddOutline className="h-4 w-4 mr-2" />
-          Nouvelle note
-        </Button>
-      </div>
+        {/* Filtres */}
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md">
+          <CardContent className="p-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Recherche */}
+              <div className="relative">
+                <IoSearchOutline className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                  type="text"
+                  placeholder="Rechercher par établissement ou titre..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 h-10 text-xs rounded-2xl bg-slate-50 dark:bg-zinc-800/50 border-slate-200 dark:border-zinc-700 focus:border-fuchsia-500 focus:ring-fuchsia-500"
+                />
+              </div>
 
-      {/* Filtres */}
-      <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-        <CardContent className="p-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Recherche */}
-            <div className="relative">
-              <IoSearchOutline className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input
-                type="text"
-                placeholder="Rechercher par établissement ou titre..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-10 text-xs rounded-2xl bg-slate-50 dark:bg-zinc-800/50 border-slate-200 dark:border-zinc-700"
-              />
+              {/* Filtre catégorie */}
+              <Select value={filterCategorie} onValueChange={setFilterCategorie}>
+                <SelectTrigger className="h-10 text-xs rounded-2xl bg-slate-50 dark:bg-zinc-800/50 border-slate-200 dark:border-zinc-700">
+                  <SelectValue placeholder="Toutes les catégories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes les catégories</SelectItem>
+                  <SelectItem value="Conformité">Conformité</SelectItem>
+                  <SelectItem value="Hygiène">Hygiène</SelectItem>
+                  <SelectItem value="Sécurité">Sécurité</SelectItem>
+                  <SelectItem value="Encadrement">Encadrement</SelectItem>
+                  <SelectItem value="Documentation">Documentation</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+          </CardContent>
+        </Card>
 
-            {/* Filtre catégorie */}
-            <Select value={filterCategorie} onValueChange={setFilterCategorie}>
-              <SelectTrigger className="h-10 text-xs rounded-2xl bg-slate-50 dark:bg-zinc-800/50 border-slate-200 dark:border-zinc-700">
-                <SelectValue placeholder="Toutes les catégories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes les catégories</SelectItem>
-                <SelectItem value="Conformité">Conformité</SelectItem>
-                <SelectItem value="Hygiène">Hygiène</SelectItem>
-                <SelectItem value="Sécurité">Sécurité</SelectItem>
-                <SelectItem value="Encadrement">Encadrement</SelectItem>
-                <SelectItem value="Documentation">Documentation</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Liste des notes */}
-      {filteredNotes.length === 0 ? (
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
-          <CardContent className="p-16 text-center">
+        {/* Liste des notes */}
+        {filteredNotes.length === 0 ? (
+          <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md">
+            <CardContent className="p-16 text-center">
             <IoDocumentTextOutline className="h-16 w-16 text-slate-300 dark:text-zinc-600 mx-auto mb-4" />
             <p className="text-sm text-slate-500 dark:text-zinc-400 font-medium">
               {searchQuery || filterCategorie !== 'all'
@@ -819,6 +829,14 @@ export const NotesPage: React.FC = () => {
           </>
         )}
       </AnimatePresence>
-    </motion.div>
+
+        {/* Professional Footer */}
+        <footer className="mt-8 pt-6 border-t border-slate-200 dark:border-zinc-800 text-center">
+          <p className="text-xs text-slate-500 dark:text-zinc-500 font-medium">
+            Kids'Med IA © 2026 - Carnet de Notes RSAI
+          </p>
+        </footer>
+      </motion.div>
+    </AppBackground>
   );
 };

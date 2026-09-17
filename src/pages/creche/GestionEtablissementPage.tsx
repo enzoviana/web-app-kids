@@ -26,6 +26,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { motion, AnimatePresence } from 'framer-motion';
 import { sectionApi, etablissementApi, documentApi, documentObligatoireApi } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
+import { AppBackground } from '@/components/AppBackground';
 
 interface Section {
   id: string;
@@ -284,24 +285,27 @@ export const GestionEtablissementPage: React.FC = () => {
   // Affichage de l'état de chargement
   if (loading && sections.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center space-y-4">
-          <IoReloadOutline className="h-12 w-12 animate-spin text-indigo-600 mx-auto" />
-          <p className="text-sm text-slate-500 dark:text-zinc-400 font-medium">
-            Chargement des sections...
-          </p>
+      <AppBackground>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center space-y-4">
+            <IoReloadOutline className="h-12 w-12 animate-spin text-lime-600 mx-auto" />
+            <p className="text-sm text-slate-500 dark:text-zinc-400 font-medium">
+              Chargement des sections...
+            </p>
+          </div>
         </div>
-      </div>
+      </AppBackground>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="p-4 sm:p-8 space-y-8 bg-gradient-to-br from-slate-50 via-indigo-50/20 to-teal-50/20 dark:from-zinc-950 dark:via-zinc-900/50 dark:to-zinc-950 min-h-screen text-slate-900 dark:text-zinc-100 font-sans antialiased"
-    >
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
 
       {/* Affichage des erreurs */}
       {error && (
@@ -320,35 +324,35 @@ export const GestionEtablissementPage: React.FC = () => {
         </div>
       )}
 
-      {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800 pb-5">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight">Gestion de l'Établissement & Sections</h1>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 shadow-xs">
-              <IoShieldCheckmarkOutline className="h-3.5 w-3.5" />
-              Administration Crèche
-            </span>
+        {/* Top Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-zinc-800 pb-5">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight">Gestion de l'Établissement & Sections</h1>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-lime-50 dark:bg-lime-950/50 text-lime-700 dark:text-lime-400 border border-lime-200 dark:border-lime-800 shadow-xs">
+                <IoShieldCheckmarkOutline className="h-3.5 w-3.5" />
+                Administration Crèche
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+              Configuration globale de la structure, agréments PMI et répartition des groupes.
+            </p>
           </div>
-          <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
-            Configuration globale de la structure, agréments PMI et répartition des groupes.
-          </p>
-        </div>
 
-        <Button
-          onClick={handleOpenStructureModal}
-          className="h-10 text-xs font-bold rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md cursor-pointer"
-        >
-          <IoPencilOutline className="h-4 w-4 mr-1.5" />
-          Modifier la structure
-        </Button>
-      </div>
+          <Button
+            onClick={handleOpenStructureModal}
+            className="h-10 text-xs font-bold rounded-2xl bg-lime-700 hover:bg-lime-600 text-white transition-all cursor-pointer"
+          >
+            <IoPencilOutline className="h-4 w-4 mr-1.5" />
+            Modifier la structure
+          </Button>
+        </div>
 
       {/* KPI Overview Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         {/* KPI 1 */}
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md">
           <CardContent className="p-5 flex items-center justify-between">
             <div>
               <p className="text-xs font-bold text-slate-400">Capacité Agréée</p>
@@ -362,7 +366,7 @@ export const GestionEtablissementPage: React.FC = () => {
         </Card>
 
         {/* KPI 2 */}
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md">
           <CardContent className="p-5 flex items-center justify-between">
             <div>
               <p className="text-xs font-bold text-slate-400">Effectif Inscrit</p>
@@ -376,7 +380,7 @@ export const GestionEtablissementPage: React.FC = () => {
         </Card>
 
         {/* KPI 3 */}
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md">
           <CardContent className="p-5 flex items-center justify-between">
             <div>
               <p className="text-xs font-bold text-slate-400">Taux d'Occupation</p>
@@ -390,7 +394,7 @@ export const GestionEtablissementPage: React.FC = () => {
         </Card>
 
         {/* KPI 4 */}
-        <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md">
           <CardContent className="p-5 flex items-center justify-between">
             <div>
               <p className="text-xs font-bold text-slate-400">Sections Actives</p>
@@ -406,7 +410,7 @@ export const GestionEtablissementPage: React.FC = () => {
       </div>
 
       {/* Établissement Information Card */}
-      <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md overflow-hidden">
+      <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md overflow-hidden">
         <CardHeader className="p-5 border-b border-slate-200/80 dark:border-zinc-800">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
@@ -466,7 +470,7 @@ export const GestionEtablissementPage: React.FC = () => {
       </Card>
 
       {/* Documents Obligatoires de la Crèche */}
-      <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md overflow-hidden">
+      <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md overflow-hidden">
         <CardHeader className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <CardTitle className="text-sm font-black tracking-tight flex items-center gap-2">
@@ -601,7 +605,7 @@ export const GestionEtablissementPage: React.FC = () => {
       </Card>
 
       {/* Sections Cards Grid */}
-      <Card className="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl shadow-md overflow-hidden">
+      <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-md overflow-hidden">
         <CardHeader className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <CardTitle className="text-sm font-black tracking-tight">Groupes & Sections</CardTitle>
@@ -639,7 +643,7 @@ export const GestionEtablissementPage: React.FC = () => {
               return (
                 <div
                   key={section.id}
-                  className="p-5 rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/30 space-y-4 relative group shadow-xs hover:shadow-md transition-all"
+                  className="p-5 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/30 space-y-4 relative group shadow-xs hover:shadow-md transition-all"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
@@ -718,7 +722,7 @@ export const GestionEtablissementPage: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden"
+              className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl max-w-lg w-full shadow-2xl overflow-hidden"
             >
               <div className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50">
                 <div className="flex items-center gap-2.5">
@@ -823,7 +827,7 @@ export const GestionEtablissementPage: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden"
+              className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl max-w-lg w-full shadow-2xl overflow-hidden"
             >
               <div className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50">
                 <div className="flex items-center gap-2.5">
@@ -952,7 +956,7 @@ export const GestionEtablissementPage: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden"
+              className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl max-w-lg w-full shadow-2xl overflow-hidden"
             >
               <div className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50">
                 <div className="flex items-center gap-2.5">
@@ -1069,7 +1073,7 @@ export const GestionEtablissementPage: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden"
+              className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl max-w-lg w-full shadow-2xl overflow-hidden"
             >
               <div className="p-5 border-b border-slate-200/80 dark:border-zinc-800 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50">
                 <div className="flex items-center gap-2.5">
@@ -1183,6 +1187,27 @@ export const GestionEtablissementPage: React.FC = () => {
         )}
       </AnimatePresence>
 
-    </motion.div>
+        {/* Professional Footer */}
+        <footer className="mt-16 pt-8 border-t border-slate-200/80 dark:border-zinc-800">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+              <span className="font-bold text-lime-600 dark:text-lime-400">Kids'Med IA</span>
+              <span>•</span>
+              <span>© 2026 Tous droits réservés</span>
+            </div>
+            <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-zinc-400">
+              <a href="#" className="hover:text-lime-600 dark:hover:text-lime-400 transition-colors font-medium">
+                Centre d'aide
+              </a>
+              <span>•</span>
+              <a href="#" className="hover:text-lime-600 dark:hover:text-lime-400 transition-colors font-medium">
+                Documentation
+              </a>
+            </div>
+          </div>
+        </footer>
+
+      </motion.div>
+    </AppBackground>
   );
 };

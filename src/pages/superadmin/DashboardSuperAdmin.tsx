@@ -15,6 +15,7 @@ import {
   IoAlertCircleOutline,
   IoDocumentTextOutline,
   IoWarningOutline,
+  IoSparkles,
 } from 'react-icons/io5';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +25,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { AppBackground } from '@/components/AppBackground';
 import {
   ResponsiveContainer,
   LineChart,
@@ -192,67 +194,72 @@ export const DashboardSuperAdmin: React.FC = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="p-16 text-center space-y-4 max-w-md mx-auto mt-20">
-        <IoReloadOutline className="h-12 w-12 text-blue-500 mx-auto animate-spin" />
-        <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">
-          Chargement du tableau de bord...
-        </p>
-      </div>
+      <AppBackground>
+        <div className="max-w-6xl mx-auto p-6 md:p-10 flex items-center justify-center h-[50vh]">
+          <div className="text-center space-y-4">
+            <IoReloadOutline className="h-12 w-12 text-amber-600 dark:text-amber-400 mx-auto animate-spin" />
+            <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">
+              Chargement du tableau de bord...
+            </p>
+          </div>
+        </div>
+      </AppBackground>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <div className="p-16 text-center space-y-4 max-w-md mx-auto mt-20">
-        <IoAlertCircleOutline className="h-12 w-12 text-red-500 mx-auto" />
-        <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">{error}</p>
-        <Button size="sm" onClick={() => window.location.reload()}>
-          <IoReloadOutline className="h-4 w-4 mr-2" />
-          Réessayer
-        </Button>
-      </div>
+      <AppBackground>
+        <div className="max-w-6xl mx-auto p-6 md:p-10 flex items-center justify-center h-[50vh]">
+          <div className="text-center space-y-4">
+            <IoAlertCircleOutline className="h-12 w-12 text-red-500 dark:text-red-400 mx-auto" />
+            <p className="text-sm font-bold text-slate-700 dark:text-zinc-200">{error}</p>
+            <Button size="sm" onClick={() => window.location.reload()} className="bg-amber-600 hover:bg-amber-700">
+              <IoReloadOutline className="h-4 w-4 mr-2" />
+              Réessayer
+            </Button>
+          </div>
+        </div>
+      </AppBackground>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="p-6 md:p-10 space-y-8 bg-slate-50/50 dark:bg-zinc-950 min-h-screen text-slate-900 dark:text-zinc-100 font-sans antialiased"
-    >
-      {/* Top Header Professionnel & Épuré */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-slate-200/80 dark:border-zinc-800 shadow-xs">
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-blue-600 text-white shadow-sm">
-              <IoSparklesOutline className="h-5 w-5" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Tableau de bord SuperAdmin
-              </h1>
-              <p className="text-xs text-slate-500 dark:text-zinc-400">
-                Administration centrale et supervision de la plateforme Kids'Med IA
-              </p>
-            </div>
-          </div>
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
+      {/* Top Header */}
+      <div className="border-b border-slate-200/80 dark:border-zinc-800 pb-5">
+        <div className="flex items-center gap-2.5 mb-2">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight">
+            Tableau de bord SuperAdmin
+          </h1>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 shadow-xs">
+            <IoSparkles className="h-3.5 w-3.5" />
+            Super Admin
+          </span>
         </div>
-
-        <div className="flex items-center gap-3">
+        <p className="text-xs text-slate-500 dark:text-zinc-400">
+          Administration centrale et supervision de la plateforme Kids'Med IA
+        </p>
+        <div className="flex items-center gap-3 mt-3">
           <Button
             variant="outline"
             size="sm"
             className="h-10 px-4 text-xs font-semibold rounded-xl border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 transition-all"
             onClick={() => navigate('/superadmin/comptes')}
           >
-            <IoPersonAddOutline className="h-4 w-4 mr-2 text-blue-600" />
+            <IoPersonAddOutline className="h-4 w-4 mr-2 text-amber-600 dark:text-amber-400" />
             Créer un compte
           </Button>
           <Button
             size="sm"
-            className="h-10 px-4 text-xs font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-sm"
+            className="h-10 px-4 text-xs font-semibold rounded-xl bg-amber-600 hover:bg-amber-700 text-white transition-all shadow-sm"
             onClick={() => navigate('/superadmin/tarifs')}
           >
             <IoWalletOutline className="h-4 w-4 mr-2" />
@@ -269,7 +276,7 @@ export const DashboardSuperAdmin: React.FC = () => {
           { title: 'Inspecteurs RSAI', count: statsGlobales.totalRSAI, sub: 'Agents de santé', icon: IoShieldCheckmarkOutline, accent: 'border-l-indigo-500' },
           { title: 'Parents', count: statsGlobales.totalParents, sub: 'Comptes parentaux', icon: IoHeartOutline, accent: 'border-l-pink-500' },
         ].map((item, idx) => (
-          <Card key={idx} className={`rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs border-l-4 ${item.accent}`}>
+          <Card key={idx} className={`rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-xs border-l-4 ${item.accent}`}>
             <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-5 space-y-0">
               <CardTitle className="text-xs font-semibold text-slate-500 dark:text-zinc-400">
                 {item.title}
@@ -382,11 +389,11 @@ export const DashboardSuperAdmin: React.FC = () => {
       {/* ======================================================== */}
       {/* VRAI GRAPHIQUE PROFESSIONNEL (RECHARTS)                    */}
       {/* ======================================================== */}
-      <Card className="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs">
+      <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-xs">
         <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 pt-6 pb-2">
           <div>
             <CardTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <IoStatsChartOutline className="h-5 w-5 text-blue-600" />
+              <IoStatsChartOutline className="h-5 w-5 text-amber-600" />
               Performance financière et acquisition
             </CardTitle>
             <CardDescription className="text-xs">Suivi comparatif dynamique du Chiffre d'Affaires et des abonnements</CardDescription>
@@ -491,12 +498,12 @@ export const DashboardSuperAdmin: React.FC = () => {
       {/* Contenu Principal - 2 Colonnes */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <Card className="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs p-2">
+          <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-xs p-2">
             <CardHeader className="px-6 pt-6">
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <IoAnalyticsOutline className="h-5 w-5 text-blue-600" />
+                    <IoAnalyticsOutline className="h-5 w-5 text-amber-600" />
                     Répartition des abonnements actifs
                   </CardTitle>
                   <CardDescription className="text-xs">Distribution par formule d'abonnement</CardDescription>
@@ -504,7 +511,7 @@ export const DashboardSuperAdmin: React.FC = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-xs font-semibold text-blue-600 hover:bg-blue-50 dark:hover:bg-zinc-800 rounded-xl"
+                  className="text-xs font-semibold text-amber-600 hover:bg-blue-50 dark:hover:bg-zinc-800 rounded-xl"
                   onClick={() => navigate('/superadmin/abonnements')}
                 >
                   <span>Détails</span>
@@ -529,7 +536,7 @@ export const DashboardSuperAdmin: React.FC = () => {
                 <div className="p-4 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/40 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-700 dark:text-zinc-200">Plan Starter</span>
-                    <span className="text-[11px] font-mono font-bold text-blue-600 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-md">{distributionPlans.starterPercent}%</span>
+                    <span className="text-[11px] font-mono font-bold text-amber-600 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-md">{distributionPlans.starterPercent}%</span>
                   </div>
                   <div className="text-xl font-bold text-slate-900 dark:text-white">{distributionPlans.starter}</div>
                   <p className="text-[11px] text-slate-500">
@@ -562,7 +569,7 @@ export const DashboardSuperAdmin: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs">
+          <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-xs">
             <CardHeader className="px-6 pt-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -572,7 +579,7 @@ export const DashboardSuperAdmin: React.FC = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-xs font-semibold text-blue-600 hover:bg-blue-50 rounded-xl"
+                  className="text-xs font-semibold text-amber-600 hover:bg-blue-50 rounded-xl"
                   onClick={() => navigate('/superadmin/tarifs')}
                 >
                   <span>Modifier</span>
@@ -616,7 +623,7 @@ export const DashboardSuperAdmin: React.FC = () => {
         </div>
 
         <div className="space-y-6">
-          <Card className="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs">
+          <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-xs">
             <CardHeader className="px-6 pt-6">
               <CardTitle className="text-base font-bold text-slate-900 dark:text-white">Activité récente</CardTitle>
               <CardDescription className="text-xs">Derniers événements sur la plateforme</CardDescription>
@@ -642,7 +649,7 @@ export const DashboardSuperAdmin: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs">
+          <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-xs">
             <CardHeader className="px-6 pt-6">
               <CardTitle className="text-base font-bold text-slate-900 dark:text-white">Actions rapides</CardTitle>
             </CardHeader>
@@ -660,7 +667,7 @@ export const DashboardSuperAdmin: React.FC = () => {
                   onClick={() => navigate(action.path)}
                 >
                   <span className="flex items-center gap-3">
-                    <action.icon className="h-4 w-4 text-blue-600" />
+                    <action.icon className="h-4 w-4 text-amber-600" />
                     {action.label}
                   </span>
                   <IoChevronForward className="h-3 w-3 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
@@ -670,6 +677,23 @@ export const DashboardSuperAdmin: React.FC = () => {
           </Card>
         </div>
       </div>
-    </motion.div>
+
+      {/* Footer */}
+      <footer className="mt-16 pt-8 border-t border-slate-200/80 dark:border-zinc-800">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+            <span className="font-bold text-amber-600 dark:text-amber-400">Kids'Med IA</span>
+            <span>•</span>
+            <span>© 2026 Tous droits réservés</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-zinc-400">
+            <a href="#" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Aide</a>
+            <a href="#" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">Confidentialité</a>
+            <a href="#" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">CGU</a>
+          </div>
+        </div>
+      </footer>
+      </motion.div>
+    </AppBackground>
   );
 };

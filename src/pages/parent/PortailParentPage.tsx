@@ -12,6 +12,7 @@ import {
   IoAlertCircleOutline,
   IoDocumentTextOutline,
   IoReloadOutline,
+  IoSparkles,
 } from 'react-icons/io5';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,8 @@ import { LierEnfantModal } from '@/components/modals/LierEnfantModal';
 import { UploadDocumentModal } from '@/components/modals/UploadDocumentModal';
 import type { Document } from '@/types';
 import { getDocumentTypeLabel } from '@/utils/documentHelpers';
+import { AppBackground } from '@/components/AppBackground';
+import { motion } from 'framer-motion';
 
 const DEFAULT_ETABLISSEMENT_ID = 'test-creche-001';
 
@@ -83,27 +86,45 @@ export const PortailParentPage: React.FC = () => {
     setIsUploadModalOpen(true);
   };
 
-  return (
-    <div className="p-8 space-y-6 bg-slate-50 dark:bg-zinc-950 min-h-screen">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900 dark:text-zinc-100">Portail Parent</h1>
-        <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1">Bienvenue sur l'espace parent de Kids'Med</p>
-      </div>
+  // Loading state
+  if (isLoading) {
+    return (
+      <AppBackground>
+        <div className="max-w-6xl mx-auto p-6 md:p-10 flex items-center justify-center h-[50vh]">
+          <div className="text-center">
+            <IoReloadOutline className="h-12 w-12 text-violet-600 dark:text-violet-400 animate-spin mx-auto mb-4" />
+            <p className="text-sm text-slate-600 dark:text-zinc-400">
+              Chargement de votre espace parent...
+            </p>
+          </div>
+        </div>
+      </AppBackground>
+    );
+  }
 
-      {/* Loading State */}
-      {isLoading && (
-        <Card className="p-8 text-center">
-          <IoReloadOutline className="h-12 w-12 text-slate-400 animate-spin mx-auto mb-4" />
-          <p className="text-sm font-semibold text-slate-600 dark:text-zinc-400">
-            Chargement...
-          </p>
-        </Card>
-      )}
+  return (
+    <AppBackground>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 text-slate-900 dark:text-zinc-100"
+      >
+      {/* Header */}
+      <div className="border-b border-slate-200/80 dark:border-zinc-800 pb-5">
+        <div className="flex items-center gap-2.5 mb-2">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight">Portail Parent</h1>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-violet-50 dark:bg-violet-950/50 text-violet-700 dark:text-violet-400 border border-violet-200 dark:border-violet-800 shadow-xs">
+            <IoSparkles className="h-3.5 w-3.5" />
+            Espace Famille
+          </span>
+        </div>
+        <p className="text-xs text-slate-500 dark:text-zinc-400">Bienvenue sur l'espace parent de Kids'Med</p>
+      </div>
 
       {/* No child linked */}
       {!isLoading && parentEnfants.length === 0 && (
-        <Card className="border-2 border-dashed border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <Card className="rounded-xl border-2 border-dashed border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
           <CardContent className="p-8 text-center">
             <IoLinkOutline className="mx-auto h-12 w-12 text-slate-400 dark:text-zinc-500 mb-4" />
             <h3 className="font-semibold text-lg text-slate-900 dark:text-zinc-100 mb-2">Aucun enfant lié</h3>
@@ -120,7 +141,7 @@ export const PortailParentPage: React.FC = () => {
 
       {/* Documents à fournir */}
       {documentsAFournir.length > 0 && (
-        <Card className="border-amber-200 dark:border-amber-900/40 bg-amber-50/50 dark:bg-amber-950/20">
+        <Card className="rounded-xl border border-amber-200 dark:border-amber-900/40 bg-amber-50/50 dark:bg-amber-950/20 backdrop-blur-md">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-amber-900 dark:text-amber-300">
               <IoDocumentTextOutline className="text-amber-500 h-5 w-5" />
@@ -246,7 +267,7 @@ export const PortailParentPage: React.FC = () => {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="hover:shadow-md transition-shadow cursor-pointer">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md hover:shadow-md dark:hover:shadow-none transition-shadow cursor-pointer">
           <CardContent className="p-6 text-center">
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
               <IoDocument className="h-6 w-6 text-primary" />
@@ -256,7 +277,7 @@ export const PortailParentPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow cursor-pointer">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md hover:shadow-md dark:hover:shadow-none transition-shadow cursor-pointer">
           <CardContent className="p-6 text-center">
             <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-3">
               <IoMedkit className="h-6 w-6 text-emerald-600" />
@@ -266,7 +287,7 @@ export const PortailParentPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow cursor-pointer">
+        <Card className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md hover:shadow-md dark:hover:shadow-none transition-shadow cursor-pointer">
           <CardContent className="p-6 text-center">
             <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-3">
               <IoChatbubbles className="h-6 w-6 text-amber-600" />
@@ -307,7 +328,7 @@ export const PortailParentPage: React.FC = () => {
       </Card>
 
       {/* Info Card */}
-      <Card className="border-primary/20 bg-primary/5 dark:bg-primary/10 dark:border-primary/30">
+      <Card className="rounded-xl border border-violet-200/60 dark:border-violet-800/60 bg-violet-50/30 dark:bg-violet-950/20 backdrop-blur-md">
         <CardContent className="p-6">
           <div className="flex gap-4">
             <IoNotifications className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
@@ -347,6 +368,23 @@ export const PortailParentPage: React.FC = () => {
           )}
         </>
       )}
-    </div>
+
+      {/* Footer */}
+      <footer className="mt-16 pt-8 border-t border-slate-200/80 dark:border-zinc-800">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+            <span className="font-bold text-violet-600 dark:text-violet-400">Kids'Med IA</span>
+            <span>•</span>
+            <span>© 2026 Tous droits réservés</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-zinc-400">
+            <a href="#" className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors">Aide</a>
+            <a href="#" className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors">Confidentialité</a>
+            <a href="#" className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors">CGU</a>
+          </div>
+        </div>
+      </footer>
+      </motion.div>
+    </AppBackground>
   );
 };
