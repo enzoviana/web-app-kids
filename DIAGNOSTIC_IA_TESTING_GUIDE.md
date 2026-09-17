@@ -2,7 +2,7 @@
 
 ## Prérequis
 
-1. Le backend doit être démarré sur `http://localhost:5001`
+1. Le backend doit être démarré sur `https://backendkids.onrender.co`
 2. Un utilisateur médecin ou RSAI doit être connecté
 3. L'établissement `test-creche-001` doit exister avec des enfants
 
@@ -10,7 +10,7 @@
 
 ### Variables d'environnement
 ```
-VITE_API_URL=http://localhost:5001/api
+VITE_API_URL=https://backendkids.onrender.co/api
 ```
 
 ### ID d'établissement par défaut
