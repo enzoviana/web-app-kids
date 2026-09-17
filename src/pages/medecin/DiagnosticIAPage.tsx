@@ -19,26 +19,15 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { diagnosticApi, enfantApi } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
+import { analyserSymptomes, enregistrerDiagnostic, IS_DEMO_MODE as IA_DEMO_MODE } from '@/services/iaService';
+import type { Enfant } from '@/types';
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
-  urgencyLevel?: 'routine' | 'vigilance' | 'urgency';
-}
-
-interface Enfant {
-  _id: string;
-  prenom: string;
-  nom: string;
-  age: number;
-  photo?: string;
-  groupeSanguin?: string;
-  pai?: {
-    actif: boolean;
-  };
-  allergies: string[];
+  urgencyLevel?: 'routine' | 'vigilance' | 'urgence';
 }
 
 interface DiagnosticStats {
@@ -147,42 +136,84 @@ export const DiagnosticIAPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Créer un diagnostic dans le backend
-      const diagnosticData = {
-        enfantId: selectedEnfantId,
-        medecinId: user?.id,
-        symptomes: messageContent,
-        niveauUrgence: 'vigilance' as const,
-        recommandations: 'En cours d\'analyse...',
+      // Préparer le contexte médical de l'enfant
+      const contexteMedical = {
+        age: selectedEnfant.age,
+        groupeSanguin: selectedEnfant.groupeSanguin,
+        allergies: selectedEnfant.allergies || [],
+        paiActif: selectedEnfant.pai?.actif || false,
+        antecedents: selectedEnfant.antecedents || [],
+        vaccinsAJour: selectedEnfant.vaccins?.length >= 11 || false, // Vaccins obligatoires
       };
 
-      const response = await diagnosticApi.createDiagnostic(diagnosticData);
-      const diagnostic = response.data;
+      // Appeler le service IA pour l'analyse
+      const analyseIA = await analyserSymptomes({
+        enfantId: selectedEnfantId,
+        symptomes: messageContent,
+        contexteMedical,
+        medecinId: user?.id || '',
+      });
 
-      // Simuler une analyse IA (à remplacer par une vraie API IA plus tard)
-      setTimeout(() => {
-        const aiResponse: Message = {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          urgencyLevel: 'vigilance',
-          content: `**Analyse clinique pour ${selectedEnfant.prenom} ${selectedEnfant.nom} (${selectedEnfant.age} ans) :**\n\nAu vu du tableau clinique transmis et des antécédents figurant au dossier (PAI : ${
-            selectedEnfant.pai?.actif ? 'Oui' : 'Non'
-          }) :\n\n• **Hypothèses orientées :** Syndrome viral aigu (Exanthème érythémateux ou dermo-respiratoire).\n• **Point d'attention :** Surveillance rapprochée de la saturation et de l'hydratation.\n• **Conduite à tenir recommandée :**\n  1. Prise de température toutes les 3h.\n  2. Isolement préventif en section si suspicion d'éviction réglementaire.\n  3. Validation formelle par le médecin avant toute administration hors PAI.\n\n*Diagnostic enregistré avec ID: ${diagnostic._id}*`,
-          timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, aiResponse]);
-        setIsLoading(false);
+      // Formater la réponse de l'IA pour l'affichage
+      let responseContent = `**Analyse clinique pour ${selectedEnfant.prenom} ${selectedEnfant.nom} (${selectedEnfant.age} ans) :**\n\n`;
+      responseContent += `**Diagnostic principal :** ${analyseIA.diagnostic}\n`;
+      responseContent += `**Niveau de confiance :** ${analyseIA.confiance}%\n\n`;
 
-        // Recharger les diagnostics
-        diagnosticApi.getDiagnosticsByEnfant(selectedEnfantId).then((res) => {
-          setDiagnostics(res.data || []);
+      if (analyseIA.differentiels && analyseIA.differentiels.length > 0) {
+        responseContent += `**Diagnostics différentiels :**\n`;
+        analyseIA.differentiels.forEach((diff, i) => {
+          responseContent += `${i + 1}. ${diff}\n`;
         });
+        responseContent += `\n`;
+      }
 
-        // Recharger les stats
-        diagnosticApi.getDiagnosticStats(DEFAULT_ETABLISSEMENT_ID).then((res) => {
-          setStats(res.data);
+      responseContent += `**Recommandations :**\n${analyseIA.recommandations}\n\n`;
+
+      if (analyseIA.examensComplementaires && analyseIA.examensComplementaires.length > 0) {
+        responseContent += `**Examens complémentaires suggérés :**\n`;
+        analyseIA.examensComplementaires.forEach((examen) => {
+          responseContent += `• ${examen}\n`;
         });
-      }, 1400);
+        responseContent += `\n`;
+      }
+
+      if (analyseIA.signesAlarme && analyseIA.signesAlarme.length > 0) {
+        responseContent += `⚠️ **Signes d'alarme à surveiller :**\n`;
+        analyseIA.signesAlarme.forEach((signe) => {
+          responseContent += `• ${signe}\n`;
+        });
+        responseContent += `\n`;
+      }
+
+      if (analyseIA.dureeEstimee) {
+        responseContent += `**Durée estimée :** ${analyseIA.dureeEstimee}\n\n`;
+      }
+
+      responseContent += `${IA_DEMO_MODE ? '*Analyse effectuée en mode démo*' : '*Analyse IA certifiée ANS/HDS*'}`;
+
+      // Créer le message de réponse
+      const aiResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        urgencyLevel: analyseIA.niveauUrgence,
+        content: responseContent,
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, aiResponse]);
+
+      // Enregistrer le diagnostic dans la base de données
+      await enregistrerDiagnostic(selectedEnfantId, user?.id || '', analyseIA, messageContent);
+
+      // Recharger les diagnostics
+      const diagnosticsResponse = await diagnosticApi.getDiagnosticsByEnfant(selectedEnfantId);
+      setDiagnostics(diagnosticsResponse.data || []);
+
+      // Recharger les stats
+      const statsResponse = await diagnosticApi.getDiagnosticStats(DEFAULT_ETABLISSEMENT_ID);
+      setStats(statsResponse.data);
+
+      setIsLoading(false);
     } catch (err: any) {
       console.error('Erreur lors de la création du diagnostic:', err);
       setIsLoading(false);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -12,6 +12,8 @@ import {
 import { AppBackground } from '@/components/AppBackground';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { MFAVerificationModal } from '@/components/MFAVerificationModal';
+import { HoraireBlockedModal } from '@/components/HoraireBlockedModal';
 import { toast } from 'sonner';
 import { migrationApi } from '@/services/api';
 
@@ -20,8 +22,33 @@ export const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isMigrating, setIsMigrating] = useState(false);
+  const [isMFAModalOpen, setIsMFAModalOpen] = useState(false);
+  const [isHoraireBlockedModalOpen, setIsHoraireBlockedModalOpen] = useState(false);
   const navigate = useNavigate();
-  const { login, isLoading, error } = useAuth();
+  const {
+    login,
+    isLoading,
+    error,
+    mfaPending,
+    completeMFA,
+    clearMFAPending,
+    horaireBlocked,
+    clearHoraireBlocked,
+  } = useAuth();
+
+  // Ouvrir la modal MFA quand mfaPending est défini
+  useEffect(() => {
+    if (mfaPending) {
+      setIsMFAModalOpen(true);
+    }
+  }, [mfaPending]);
+
+  // Ouvrir la modal horaire quand horaireBlocked est défini
+  useEffect(() => {
+    if (horaireBlocked) {
+      setIsHoraireBlockedModalOpen(true);
+    }
+  }, [horaireBlocked]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,16 +56,43 @@ export const LoginPage: React.FC = () => {
     try {
       await login(email, password);
 
-      toast.success('Connexion réussie !');
-
-      // La redirection sera gérée par le router
-      // qui vérifie le flag mustChangePassword
-      navigate('/');
+      // Si MFA requis, la modal s'ouvrira automatiquement via useEffect
+      // Sinon, connexion réussie directement
+      if (!mfaPending) {
+        toast.success('Connexion réussie !');
+        // La redirection sera gérée par le router
+        // qui vérifie le flag mustChangePassword
+        navigate('/');
+      }
     } catch (err: any) {
       const errorMessage = err.message || 'Email ou mot de passe incorrect';
       toast.error(errorMessage);
       console.error('Erreur de connexion:', err);
     }
+  };
+
+  const handleMFASuccess = async (mfaToken: string) => {
+    try {
+      await completeMFA(mfaToken);
+      setIsMFAModalOpen(false);
+      toast.success('Connexion sécurisée établie !');
+      navigate('/');
+    } catch (err: any) {
+      const errorMessage = err.message || 'Erreur lors de la validation MFA';
+      toast.error(errorMessage);
+      console.error('Erreur MFA:', err);
+    }
+  };
+
+  const handleMFAClose = () => {
+    setIsMFAModalOpen(false);
+    clearMFAPending();
+    toast.info('Connexion annulée');
+  };
+
+  const handleHoraireBlockedClose = () => {
+    setIsHoraireBlockedModalOpen(false);
+    clearHoraireBlocked();
   };
 
   // Fonction pour remplir automatiquement les identifiants de test
@@ -242,7 +296,7 @@ export const LoginPage: React.FC = () => {
             </div>
           </motion.div>
 
-         
+
         </div>
 
         {/* Footer */}
@@ -252,6 +306,32 @@ export const LoginPage: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {/* MFA Verification Modal */}
+      {mfaPending && (
+        <MFAVerificationModal
+          isOpen={isMFAModalOpen}
+          onClose={handleMFAClose}
+          onSuccess={handleMFASuccess}
+          userId={mfaPending.userId}
+          userEmail={mfaPending.email}
+          userTel={mfaPending.tel}
+          method={mfaPending.method}
+          userName={mfaPending.userName}
+        />
+      )}
+
+      {/* Horaire Blocked Modal */}
+      {horaireBlocked && (
+        <HoraireBlockedModal
+          isOpen={isHoraireBlockedModalOpen}
+          onClose={handleHoraireBlockedClose}
+          role={horaireBlocked.role}
+          message={horaireBlocked.message}
+          prochaineCreneau={horaireBlocked.prochaineCreneau}
+          heureActuelle={horaireBlocked.heureActuelle}
+        />
+      )}
     </AppBackground>
   );
 };

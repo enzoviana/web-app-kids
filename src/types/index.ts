@@ -2,6 +2,46 @@
 
 export type UserRole = 'creche' | 'medecin' | 'rsai' | 'auxiliaire' | 'parent' | 'superadmin' | 'developpeur';
 
+// Types pour l'authentification MFA
+export type AuthMethod = 'email' | 'google' | 'apple';
+
+export interface MFASettings {
+  mfa_enabled: boolean;
+  mfa_method?: 'sms' | 'email';
+  telephone_verified?: string; // Numéro de téléphone vérifié pour SMS
+  last_mfa_at?: string; // Date dernière validation MFA
+}
+
+// Types pour le contrôle horaire d'accès
+export interface PlageHoraire {
+  debut: string; // Format HH:mm (ex: "07:00")
+  fin: string;   // Format HH:mm (ex: "19:00")
+  jours: number[]; // 0=Dimanche, 1=Lundi, ... 6=Samedi
+}
+
+export interface RestrictionsHoraires {
+  role: UserRole;
+  plages: PlageHoraire[];
+  message_hors_horaires?: string;
+}
+
+// Configuration par défaut des horaires par rôle
+export const HORAIRES_PAR_ROLE: Record<UserRole, PlageHoraire[]> = {
+  creche: [
+    { debut: '07:00', fin: '19:00', jours: [1, 2, 3, 4, 5] }, // Lundi-Vendredi 7h-19h
+  ],
+  auxiliaire: [
+    { debut: '07:00', fin: '19:00', jours: [1, 2, 3, 4, 5] }, // Lundi-Vendredi 7h-19h
+  ],
+  rsai: [
+    { debut: '08:00', fin: '18:00', jours: [1, 2, 3, 4, 5] }, // Lundi-Vendredi 8h-18h
+  ],
+  medecin: [], // Pas de restriction horaire (urgences 24/7)
+  parent: [], // Pas de restriction horaire (accès 24/7)
+  superadmin: [], // Pas de restriction horaire (admin 24/7)
+  developpeur: [], // Pas de restriction horaire (maintenance 24/7)
+};
+
 export type StatutEnfant = 'sain' | 'symptome' | 'attention';
 
 export type NoteVisibilite = 'interne' | 'globale';
@@ -33,6 +73,7 @@ export interface Enfant {
   medecin_id?: string;
   codeConfidentiel: string; // Code unique à 6 caractères
   codeGenereeLe?: string;   // Date de dernière génération
+  qr_code?: string;          // URL unique générée pour le QR Code (CDC page 6)
 }
 
 export interface Vaccin {
@@ -48,8 +89,19 @@ export interface Parent {
   prenom: string;
   tel: string;
   email: string;
-  adresse: string;
+  adresse: string | {
+    rue: string;
+    ville: string;
+    code_postal: string;
+    pays: string;
+  };
   lien: 'mere' | 'pere' | 'tuteur';
+  // Champs conformité CDC
+  enfant_ids?: string[];
+  auth_method?: AuthMethod;
+  date_inscription?: string;
+  date_derniere_connexion?: string;
+  statut?: 'actif' | 'inactif' | 'banni';
 }
 
 export interface Creche {
@@ -73,6 +125,14 @@ export interface Medecin {
   telephone: string;
   email: string;
   numeroOrdre: string;
+  // Champs conformité CDC
+  auth_method?: AuthMethod;
+  date_inscription?: string;
+  date_derniere_connexion?: string;
+  statut?: 'actif' | 'inactif' | 'banni';
+  // MFA
+  mfa_enabled?: boolean;
+  mfa_method?: 'sms' | 'email';
 }
 
 export interface RSAI {
@@ -83,6 +143,16 @@ export interface RSAI {
   telephone: string;
   certifications: string[];
   secteur: string;
+  // Champs conformité CDC
+  creche_ids?: string[];
+  access_level?: 'lecture' | 'édition' | 'consultation';
+  auth_method?: AuthMethod;
+  date_inscription?: string;
+  date_derniere_connexion?: string;
+  statut?: 'actif' | 'inactif' | 'banni';
+  // MFA
+  mfa_enabled?: boolean;
+  mfa_method?: 'sms' | 'email';
 }
 
 export interface DiagnosticIA {
@@ -95,6 +165,7 @@ export interface DiagnosticIA {
   date: string;
   declareParRole: UserRole;
   notificationEnvoyee: boolean;
+  photo_analysee?: string; // URL de la photo analysée par l'IA (CDC page 6)
 }
 
 export interface Ordonnance {
@@ -140,8 +211,10 @@ export interface LogSecurite {
   latitude?: number;
   longitude?: number;
   timestamp: string;
+  horaire_tentative?: string; // Heure de la tentative d'accès (Format HH:mm)
   raison?: string;
   details?: string;
+  device?: string; // Type d'appareil (ex: "Samsung Galaxy S22") - Conformité CDC page 7
 }
 
 export interface AlerteSOS {
@@ -172,6 +245,13 @@ export interface SuperAdmin {
   email: string;
   telephone: string;
   dateCreation: string;
+  // Champs conformité CDC
+  auth_method?: AuthMethod;
+  date_derniere_connexion?: string;
+  statut?: 'actif' | 'inactif' | 'banni';
+  // MFA
+  mfa_enabled?: boolean;
+  mfa_method?: 'sms' | 'email';
 }
 
 export interface Developpeur {

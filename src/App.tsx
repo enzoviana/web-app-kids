@@ -25,6 +25,9 @@ import { NotesPage } from '@/pages/rsai/NotesPage';
 import { AbonnementRSAIPage } from '@/pages/rsai/AbonnementRSAIPage';
 import { DashboardAuxiliaire } from '@/pages/auxiliaire/DashboardAuxiliaire';
 import { PortailParentPage } from '@/pages/parent/PortailParentPage';
+import { EditMedicalInfoPage } from '@/pages/parent/EditMedicalInfoPage';
+import { MesDonneesPage } from '@/pages/parent/MesDonneesPage';
+import { DiagnosticIAConsultationPage } from '@/pages/creche/DiagnosticIAConsultationPage';
 import { DashboardSuperAdmin } from '@/pages/superadmin/DashboardSuperAdmin';
 import { GestionComptesPage } from '@/pages/superadmin/GestionComptesPage';
 import { GestionTarifsPage } from '@/pages/superadmin/GestionTarifsPage';
@@ -111,6 +114,7 @@ const AppRoutes: React.FC = () => {
         <Route path="enfants" element={<EnfantsPage />} />
         <Route path="enfants/:id" element={<EnfantDetailsPage />} />
         <Route path="documents" element={<CompliancePage />} />
+        <Route path="diagnostics-ia" element={<DiagnosticIAConsultationPage />} />
         <Route path="registre-medicaments" element={<RegistreMedicamentsPage />} />
         <Route path="cahier-liaison" element={<CahierLiaisonPage />} />
         <Route path="etablissement" element={<GestionEtablissementPage />} />
@@ -194,7 +198,9 @@ const AppRoutes: React.FC = () => {
       >
         <Route index element={<PortailParentPage />} />
         <Route path="enfant/:id" element={<EnfantDetailsPage />} />
+        <Route path="enfant/:id/editer-medical" element={<EditMedicalInfoPage />} />
         <Route path="documents" element={<CompliancePage />} />
+        <Route path="mes-donnees" element={<MesDonneesPage />} />
         <Route path="messagerie" element={<MessagerieSecuriseePage />} />
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="parametres" element={<ParametresPage />} />

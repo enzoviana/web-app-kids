@@ -112,6 +112,27 @@ export const authApi = {
     const response = await api.post('/auth/refresh', { refreshToken });
     return response.data;
   },
+
+  // MFA Endpoints
+  sendMFACode: async (userId: string, method: 'sms' | 'email') => {
+    const response = await api.post('/auth/mfa/send-code', { userId, method });
+    return response.data;
+  },
+
+  verifyMFACode: async (userId: string, code: string) => {
+    const response = await api.post('/auth/mfa/verify-code', { userId, code });
+    return response.data;
+  },
+
+  enableMFA: async (method: 'sms' | 'email', telephone?: string) => {
+    const response = await api.post('/auth/mfa/enable', { method, telephone });
+    return response.data;
+  },
+
+  disableMFA: async () => {
+    const response = await api.post('/auth/mfa/disable');
+    return response.data;
+  },
 };
 
 /**
