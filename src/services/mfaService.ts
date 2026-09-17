@@ -7,7 +7,7 @@ import { authApi } from './api';
 import { toast } from 'sonner';
 
 // Détection du mode démo via variable d'environnement
-export const IS_DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true';
+export const IS_DEMO_MODE = 'true';
 
 // Code MFA de démonstration (utilisé uniquement en mode démo)
 export const DEMO_MFA_CODE = '123456';
